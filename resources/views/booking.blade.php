@@ -39,13 +39,25 @@
                             </div>
                         </div>
 
-                        <!-- Input Tanggal & Waktu -->
-                        <div class="mb-8">
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="custom_departure_time">
-                                Rencana Waktu Keberangkatan
-                            </label>
-                            <input class="shadow appearance-none border rounded w-full md:w-1/2 py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                                id="custom_departure_time" type="datetime-local" name="custom_departure_time" required>
+                        <!-- Grid Waktu Berangkat & Waktu Selesai -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <!-- Rencana Waktu Keberangkatan -->
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="custom_departure_time">
+                                    Rencana Waktu Keberangkatan
+                                </label>
+                                <input class="shadow appearance-none border rounded w-full py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                    id="custom_departure_time" type="datetime-local" name="custom_departure_time" required>
+                            </div>
+
+                            <!-- Rencana Waktu Selesai (BARU) -->
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="custom_arrival_time">
+                                    Rencana Waktu Selesai (Kembali)
+                                </label>
+                                <input class="shadow appearance-none border rounded w-full py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                    id="custom_arrival_time" type="datetime-local" name="custom_arrival_time" required>
+                            </div>
                         </div>
 
                         <div class="flex justify-end pt-4 border-t">
