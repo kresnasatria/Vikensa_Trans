@@ -50,9 +50,9 @@
                                 <a href="{{ route('book.create', $schedule->id) }}" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition cursor-pointer font-semibold text-sm">
                                     Form Pesan Unit
                                 </a>
-                            @else
+                           @else
                                 <button disabled class="bg-gray-300 text-gray-500 font-semibold px-4 py-2 rounded cursor-not-allowed">
-                                    Unit Kosong
+                                    Unit Disewa
                                 </button>
                             @endif
                         </div>

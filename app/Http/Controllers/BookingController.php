@@ -52,6 +52,11 @@ class BookingController extends Controller
             'payment_status' => 'pending'
         ]);
 
+        // BARU: Kunci status ketersediaan armada agar tidak bisa dipesan orang lain
+        $schedule->update([
+            'is_available' => false
+        ]);
+
         return redirect()->route('riwayat')->with('success', 'Pesanan berhasil dibuat! Silakan lakukan pembayaran.');
     }
 
@@ -113,21 +118,30 @@ class BookingController extends Controller
     }
 
     // Fungsi untuk membatalkan pesanan
+    // Fungsi untuk membatalkan pesanan
     public function cancel($id)
     {
-        // Cari pesanan berdasarkan ID dan pastikan itu milik user yang sedang login
         $booking = \App\Models\Booking::where('id', $id)
                         ->where('user_id', \Illuminate\Support\Facades\Auth::id())
                         ->firstOrFail();
 
-        // Pastikan pesanan masih berstatus pending
         if ($booking->payment_status == 'pending') {
+            
+            // 1. Ubah status pesanan menjadi dibatalkan
             $booking->update([
-                'payment_status' => 'cancelled' // Ubah status menjadi dibatalkan
+                'payment_status' => 'cancelled' 
             ]);
 
-            return redirect()->route('riwayat')->with('success', 'Pesanan Anda berhasil dibatalkan.');
-        }
+            // 2. Buka kembali ketersediaan armada di dashboard
+            $schedule = \App\Models\Schedule::find($booking->schedule_id);
+            if($schedule) {
+                $schedule->update([
+                    'is_available' => true
+                ]);
+            }
+
+            return redirect()->route('riwayat')->with('success', 'Pesanan Anda berhasil dibatalkan dan armada kembali tersedia.');
+        } 
 
         return redirect()->route('riwayat')->with('error', 'Pesanan ini tidak dapat dibatalkan.');
     }
