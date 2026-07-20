@@ -37,22 +37,24 @@ class BookingController extends Controller
             'custom_origin' => 'required|string|max:255',
             'custom_destination' => 'required|string|max:255',
             'custom_departure_time' => 'required|date',
+            'custom_arrival_time' => 'required|date|after:custom_departure_time', // BARU: Waktu selesai harus setelah waktu berangkat
         ]);
 
         $schedule = \App\Models\Schedule::findOrFail($request->schedule_id);
 
-        Booking::create([
+        \App\Models\Booking::create([
             'user_id' => Auth::id(),
             'schedule_id' => $schedule->id,
             'booking_code' => 'TRV-' . time(),
             'custom_origin' => $request->custom_origin,
             'custom_destination' => $request->custom_destination,
             'custom_departure_time' => $request->custom_departure_time,
+            'custom_arrival_time' => $request->custom_arrival_time, // BARU: Simpan waktu selesai
             'total_price' => $schedule->price,
             'payment_status' => 'pending'
         ]);
 
-        // BARU: Kunci status ketersediaan armada agar tidak bisa dipesan orang lain
+        // Kunci ketersediaan armada
         $schedule->update([
             'is_available' => false
         ]);
