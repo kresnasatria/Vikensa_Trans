@@ -11,7 +11,7 @@
           content="{{ csrf_token() }}">
 
     <meta name="description"
-          content="Dashboard VikensaTrans - Pesan Toyota Hiace untuk perjalanan Anda.">
+          content="Dashboard VikensaTrans - Pesan armada untuk perjalanan Anda.">
 
     <title>Dashboard - VikensaTrans</title>
 
@@ -77,38 +77,18 @@
 
     /*
     |--------------------------------------------------------------------------
-    | FILTER TOYOTA HIACE
+    | DATA STATISTIK DINAMIS
     |--------------------------------------------------------------------------
-    |
-    | VikensaTrans hanya menggunakan Toyota Hiace.
-    | Data Elf / Sprinter lama tidak ditampilkan di frontend.
-    |
     */
 
-    $hiaceSchedules = $schedules
-        ->filter(function ($schedule) {
-
-            $shuttleName =
-                strtolower($schedule->shuttle->name ?? '');
-
-            return str_contains(
-                $shuttleName,
-                'hiace'
-            );
-
-        })
-        ->take(2)
-        ->values();
-
-
     $availableCount =
-        $hiaceSchedules
+        $schedules
             ->where('is_available', true)
             ->count();
 
 
     $unavailableCount =
-        $hiaceSchedules
+        $schedules
             ->where('is_available', false)
             ->count();
 
@@ -1397,7 +1377,7 @@
                                 sm:text-base
                             "
                         >
-                            Pilih Toyota Hiace VikensaTrans dan atur
+                            Pilih armada VikensaTrans dan atur
                             perjalanan sesuai kebutuhanmu. Kota jemput,
                             tujuan, serta waktu perjalanan dapat ditentukan
                             pada saat melakukan pemesanan.
@@ -1515,7 +1495,7 @@
                                     text-slate-950
                                 "
                             >
-                                {{ $hiaceSchedules->count() }}
+                                {{ $schedules->count() }}
                             </p>
 
 
@@ -1526,7 +1506,7 @@
                                     text-slate-400
                                 "
                             >
-                                Toyota Hiace
+                                Total Unit
                             </p>
 
                         </div>
@@ -1928,7 +1908,7 @@
                                 sm:text-3xl
                             "
                         >
-                            Pilih Toyota Hiace
+                            Pilih Armada Anda
                         </h2>
 
 
@@ -1943,7 +1923,7 @@
                                 text-slate-500
                             "
                         >
-                            Pilih unit yang masih tersedia.
+                            Pilih unit kendaraan yang masih tersedia.
                             Detail kota jemput, tujuan, serta waktu
                             keberangkatan akan diisi pada form pemesanan.
                         </p>
@@ -2009,7 +1989,7 @@
                     "
                 >
 
-                    @forelse($hiaceSchedules as $schedule)
+                    @forelse($schedules as $schedule)
 
                         @php
 
@@ -2019,12 +1999,12 @@
                             |--------------------------------------------------
                             |
                             | Unit pertama memakai v01.jpeg
-                            | Unit kedua memakai v02.jpeg
+                            | Unit kedua memakai v02.jpeg, dst.
                             |
                             */
 
                             $vehicleImage =
-                                $loop->iteration === 1
+                                $loop->iteration % 2 === 1
                                     ? 'images/v01.jpeg'
                                     : 'images/v02.jpeg';
 
@@ -2067,7 +2047,7 @@
                                 <img
                                     src="{{ asset($vehicleImage) }}"
 
-                                    alt="Toyota Hiace VikensaTrans"
+                                    alt="{{ $schedule->shuttle->name ?? 'Armada' }} VikensaTrans"
 
                                     class="
                                         vehicle-image
@@ -2254,7 +2234,7 @@
                                             text-white
                                         "
                                     >
-                                        {{ $schedule->shuttle->name }}
+                                        {{ $schedule->shuttle->name ?? 'Armada' }}
                                     </h3>
 
                                 </div>
@@ -2348,8 +2328,10 @@
 
                                         <p
                                             class="
-                                                text-xs
+                                                text-[11px]
                                                 font-semibold
+                                                uppercase
+                                                tracking-wider
                                                 text-slate-400
                                             "
                                         >
@@ -2365,7 +2347,7 @@
                                                 text-slate-900
                                             "
                                         >
-                                            {{ $schedule->shuttle->license_plate }}
+                                            {{ $schedule->shuttle->license_plate ?? '-' }}
                                         </p>
 
                                     </div>
@@ -2476,8 +2458,97 @@
                                                     text-slate-900
                                                 "
                                             >
-                                                {{ $schedule->shuttle->seat_capacity }}
+                                                {{ $schedule->shuttle->seat_capacity ?? '-' }}
                                                 Penumpang
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+
+
+                                    {{-- VEHICLE --}}
+
+                                    <div
+                                        class="
+                                            flex
+                                            items-center
+                                            gap-3
+
+                                            rounded-2xl
+
+                                            bg-slate-50
+
+                                            p-4
+                                        "
+                                    >
+
+                                        <div
+                                            class="
+                                                flex
+                                                h-10
+                                                w-10
+                                                shrink-0
+                                                items-center
+                                                justify-center
+
+                                                rounded-xl
+
+                                                bg-white
+
+                                                text-sky-600
+
+                                                shadow-sm
+                                            "
+                                        >
+
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="1.8"
+                                                class="h-5 w-5"
+                                            >
+
+                                                <path
+                                                    d="M3 13l2-5a3 3 0 0 1 2.8-2h8.4A3 3 0 0 1 19 8l2 5"
+                                                />
+
+                                                <path
+                                                    d="M5 13h14a2 2 0 0 1 2 2v3H3v-3a2 2 0 0 1 2-2Z"
+                                                />
+
+                                            </svg>
+
+                                        </div>
+
+
+                                        <div class="min-w-0">
+
+                                            <p
+                                                class="
+                                                    text-[11px]
+                                                    font-semibold
+                                                    uppercase
+                                                    tracking-wider
+                                                    text-slate-400
+                                                "
+                                            >
+                                                Armada
+                                            </p>
+
+
+                                            <p
+                                                class="
+                                                    mt-1
+                                                    truncate
+                                                    text-sm
+                                                    font-black
+                                                    text-slate-900
+                                                "
+                                            >
+                                                {{ $schedule->shuttle->name ?? 'Armada' }}
                                             </p>
 
                                         </div>
@@ -2660,95 +2731,6 @@
                                                 "
                                             >
                                                 Pilih Sendiri
-                                            </p>
-
-                                        </div>
-
-                                    </div>
-
-
-
-                                    {{-- VEHICLE --}}
-
-                                    <div
-                                        class="
-                                            flex
-                                            items-center
-                                            gap-3
-
-                                            rounded-2xl
-
-                                            bg-slate-50
-
-                                            p-4
-                                        "
-                                    >
-
-                                        <div
-                                            class="
-                                                flex
-                                                h-10
-                                                w-10
-                                                shrink-0
-                                                items-center
-                                                justify-center
-
-                                                rounded-xl
-
-                                                bg-white
-
-                                                text-sky-600
-
-                                                shadow-sm
-                                            "
-                                        >
-
-                                            <svg
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                stroke-width="1.8"
-                                                class="h-5 w-5"
-                                            >
-
-                                                <path
-                                                    d="M3 13l2-5a3 3 0 0 1 2.8-2h8.4A3 3 0 0 1 19 8l2 5"
-                                                />
-
-                                                <path
-                                                    d="M5 13h14a2 2 0 0 1 2 2v3H3v-3a2 2 0 0 1 2-2Z"
-                                                />
-
-                                            </svg>
-
-                                        </div>
-
-
-                                        <div>
-
-                                            <p
-                                                class="
-                                                    text-[11px]
-                                                    font-semibold
-                                                    uppercase
-                                                    tracking-wider
-                                                    text-slate-400
-                                                "
-                                            >
-                                                Armada
-                                            </p>
-
-
-                                            <p
-                                                class="
-                                                    mt-1
-
-                                                    text-sm
-                                                    font-black
-                                                    text-slate-900
-                                                "
-                                            >
-                                                Toyota Hiace
                                             </p>
 
                                         </div>
@@ -2976,7 +2958,7 @@
                                     text-slate-950
                                 "
                             >
-                                Toyota Hiace belum tersedia
+                                Armada belum tersedia
                             </h3>
 
 
@@ -2992,7 +2974,7 @@
                                     text-slate-500
                                 "
                             >
-                                Data Toyota Hiace belum ditemukan
+                                Data armada belum ditemukan
                                 pada database. Silakan hubungi
                                 administrator VikensaTrans.
                             </p>
@@ -3129,7 +3111,7 @@
                                     text-slate-500
                                 "
                             >
-                                Pilih unit Toyota Hiace yang tersedia.
+                                Pilih unit kendaraan yang tersedia sesuai kebutuhan Anda.
                             </p>
 
                         </div>

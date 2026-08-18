@@ -2035,201 +2035,56 @@
 
 
                                 {{-- ================================================= --}}
-                                {{-- ROUTE --}}
+                                {{-- KOTA ASAL & TUJUAN (MANUAL) --}}
                                 {{-- ================================================= --}}
 
-                                <div
-                                    class="md:col-span-2"
-                                >
+                                <div class="md:col-span-2 grid gap-5 md:grid-cols-2">
 
-                                    <label
-                                        for="route_id"
+                                    {{-- KOTA ASAL --}}
+                                    <div>
+                                        <label for="route_origin" class="block text-sm font-bold text-slate-700">
+                                            Kota Asal <span class="text-red-500">*</span>
+                                        </label>
 
-                                        class="
-                                            block
-                                            text-sm
-                                            font-bold
-                                            text-slate-700
-                                        "
-                                    >
-                                        Rute Dasar
+                                        <div class="relative mt-2">
+                                            <div class="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-4 text-slate-400">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
+                                                    <path d="M12 22s7-5 7-12a7 7 0 1 0-14 0c0 7 7 12 7 12Z" />
+                                                    <circle cx="12" cy="10" r="2" />
+                                                </svg>
+                                            </div>
 
-                                        <span class="text-red-500">
-                                            *
-                                        </span>
-                                    </label>
-
-
-                                    <div
-                                        class="
-                                            relative
-                                            mt-2
-                                        "
-                                    >
-
-                                        <div
-                                            class="
-                                                pointer-events-none
-
-                                                absolute
-                                                inset-y-0
-                                                left-0
-
-                                                z-10
-
-                                                flex
-                                                items-center
-
-                                                pl-4
-
-                                                text-slate-400
-                                            "
-                                        >
-
-                                            <svg
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                stroke-width="1.8"
-                                                class="h-5 w-5"
-                                            >
-                                                <path
-                                                    d="M12 22s7-5 7-12a7 7 0 1 0-14 0c0 7 7 12 7 12Z"
-                                                />
-
-                                                <circle
-                                                    cx="12"
-                                                    cy="10"
-                                                    r="2"
-                                                />
-                                            </svg>
-
+                                            <input id="route_origin" type="text" name="route_origin" value="{{ old('route_origin') }}" placeholder="Contoh: Bandung" required
+                                                class="block h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-12 pr-4 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10">
                                         </div>
 
-
-                                        <select
-                                            id="route_id"
-
-                                            name="route_id"
-
-                                            required
-
-                                            class="
-                                                block
-                                                h-14
-                                                w-full
-
-                                                appearance-none
-
-                                                rounded-2xl
-
-                                                border
-                                                border-slate-200
-
-                                                bg-slate-50
-
-                                                py-3
-                                                pl-12
-                                                pr-12
-
-                                                text-sm
-                                                font-medium
-                                                text-slate-900
-
-                                                outline-none
-
-                                                transition
-
-                                                hover:border-slate-300
-
-                                                focus:border-sky-500
-                                                focus:bg-white
-                                                focus:ring-4
-                                                focus:ring-sky-500/10
-                                            "
-                                        >
-
-                                            <option
-                                                value=""
-                                                disabled
-                                                {{ old('route_id') ? '' : 'selected' }}
-                                            >
-                                                Pilih rute perjalanan
-                                            </option>
-
-
-                                            @foreach($routes as $rute)
-
-                                                <option
-                                                    value="{{ $rute->id }}"
-
-                                                    {{ old('route_id') == $rute->id
-                                                        ? 'selected'
-                                                        : ''
-                                                    }}
-                                                >
-
-                                                    {{ $rute->origin?->city ?? 'Asal' }}
-
-                                                    →
-
-                                                    {{ $rute->destination?->city ?? 'Tujuan' }}
-
-                                                </option>
-
-                                            @endforeach
-
-                                        </select>
-
-
-                                        <div
-                                            class="
-                                                pointer-events-none
-
-                                                absolute
-                                                inset-y-0
-                                                right-0
-
-                                                flex
-                                                items-center
-
-                                                pr-4
-
-                                                text-slate-400
-                                            "
-                                        >
-
-                                            <svg
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                class="h-4 w-4"
-                                            >
-                                                <path
-                                                    d="m6 9 6 6 6-6"
-                                                />
-                                            </svg>
-
-                                        </div>
-
+                                        @error('route_origin')
+                                            <p class="mt-2 text-xs font-semibold text-red-500">{{ $message }}</p>
+                                        @enderror
                                     </div>
 
+                                    {{-- KOTA TUJUAN --}}
+                                    <div>
+                                        <label for="route_destination" class="block text-sm font-bold text-slate-700">
+                                            Kota Tujuan <span class="text-red-500">*</span>
+                                        </label>
 
-                                    @error('route_id')
+                                        <div class="relative mt-2">
+                                            <div class="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-4 text-slate-400">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
+                                                    <path d="M12 22s7-5 7-12a7 7 0 1 0-14 0c0 7 7 12 7 12Z" />
+                                                    <circle cx="12" cy="10" r="2" />
+                                                </svg>
+                                            </div>
 
-                                        <p
-                                            class="
-                                                mt-2
-                                                text-xs
-                                                font-semibold
-                                                text-red-500
-                                            "
-                                        >
-                                            {{ $message }}
-                                        </p>
+                                            <input id="route_destination" type="text" name="route_destination" value="{{ old('route_destination') }}" placeholder="Contoh: Jakarta" required
+                                                class="block h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-12 pr-4 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10">
+                                        </div>
 
-                                    @enderror
+                                        @error('route_destination')
+                                            <p class="mt-2 text-xs font-semibold text-red-500">{{ $message }}</p>
+                                        @enderror
+                                    </div>
 
                                 </div>
 

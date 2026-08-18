@@ -13,23 +13,45 @@ class BookingController extends Controller
 {
     public function index()
     {
-        // Mengambil pesanan khusus milik pengguna yang sedang login, diurutkan dari yang terbaru
-        $bookings = Booking::with(['schedule.route.origin', 'schedule.route.destination', 'schedule.shuttle'])
-                    ->where('user_id', Auth::id())
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+        // 1. FITUR BARU: PENYAPU OTOMATIS (AUTO-CANCEL 5 MENIT)
+        $expiredBookings = \App\Models\Booking::where('payment_status', 'pending')
+                            ->where('created_at', '<', now()->subMinutes(5))
+                            ->get();
+
+        foreach ($expiredBookings as $booking) {
+            $booking->update([
+                'payment_status' => 'cancelled'
+            ]);
+
+            $schedule = \App\Models\Schedule::find($booking->schedule_id);
+            if ($schedule) {
+                $schedule->update([
+                    'is_available' => true
+                ]);
+            }
+        }
+
+        // 2. Ambil data riwayat pesanan user untuk ditampilkan
+        $bookings = \App\Models\Booking::where('user_id', \Illuminate\Support\Facades\Auth::id())
+                        ->orderBy('created_at', 'desc')
+                        ->get();
 
         return view('riwayat', compact('bookings'));
     }
 
-   // 1. Tambahkan fungsi create ini untuk memunculkan form
+    // Fungsi untuk menampilkan halaman form pemesanan
     public function create($id)
     {
-        $schedule = \App\Models\Schedule::with('shuttle')->findOrFail($id);
+        $schedule = \App\Models\Schedule::with(['shuttle', 'route.origin', 'route.destination'])->findOrFail($id);
+
+        if (!$schedule->is_available) {
+            return redirect()->route('dashboard')->with('error', 'Maaf, armada ini baru saja dipesan oleh orang lain.');
+        }
+
         return view('booking', compact('schedule'));
     }
 
-    // 2. Perbarui fungsi store yang sudah ada menjadi seperti ini:
+    // Fungsi untuk memproses data dari form pemesanan
     public function store(Request $request)
     {
         $request->validate([
@@ -37,7 +59,7 @@ class BookingController extends Controller
             'custom_origin' => 'required|string|max:255',
             'custom_destination' => 'required|string|max:255',
             'custom_departure_time' => 'required|date',
-            'custom_arrival_time' => 'required|date|after:custom_departure_time', // BARU: Waktu selesai harus setelah waktu berangkat
+            'custom_arrival_time' => 'required|date|after:custom_departure_time',
         ]);
 
         $schedule = \App\Models\Schedule::findOrFail($request->schedule_id);
@@ -49,7 +71,7 @@ class BookingController extends Controller
             'custom_origin' => $request->custom_origin,
             'custom_destination' => $request->custom_destination,
             'custom_departure_time' => $request->custom_departure_time,
-            'custom_arrival_time' => $request->custom_arrival_time, // BARU: Simpan waktu selesai
+            'custom_arrival_time' => $request->custom_arrival_time,
             'total_price' => $schedule->price,
             'payment_status' => 'pending'
         ]);
@@ -64,28 +86,36 @@ class BookingController extends Controller
 
     public function pay($id)
     {
-        // 1. Cari data pesanan
         $booking = Booking::with('schedule.shuttle')->findOrFail($id);
 
-        // 2. Pastikan pesanan masih pending
         if ($booking->payment_status != 'pending') {
             return redirect()->route('riwayat')->with('error', 'Pesanan ini sudah dibayar atau dibatalkan.');
         }
 
-        // 3. Konfigurasi Midtrans
+        // FITUR BARU: Cegah pembayaran jika sudah lewat 5 menit
+        if ($booking->created_at->diffInMinutes(now()) >= 5) {
+            $booking->update(['payment_status' => 'cancelled']);
+            
+            $schedule = \App\Models\Schedule::find($booking->schedule_id);
+            if ($schedule) {
+                $schedule->update(['is_available' => true]);
+            }
+
+            return redirect()->route('riwayat')->with('error', 'Waktu pembayaran telah habis (melewati 5 menit). Pesanan dibatalkan otomatis.');
+        }
+
         Config::$serverKey = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production');
         Config::$isSanitized = config('midtrans.is_sanitized');
         Config::$is3ds = config('midtrans.is_3ds');
 
-        // 4. Siapkan parameter untuk dikirim ke Midtrans
         $params = [
             'transaction_details' => [
                 'order_id' => $booking->booking_code,
                 'gross_amount' => $booking->total_price,
             ],
             'customer_details' => [
-                'first_name' => Auth::user()->name, // Mengambil nama user yang login
+                'first_name' => Auth::user()->name,
                 'email' => Auth::user()->email,
             ],
             'item_details' => [
@@ -98,29 +128,22 @@ class BookingController extends Controller
             ]
         ];
 
-        // 5. Dapatkan Token Snap dari Midtrans
         $snapToken = Snap::getSnapToken($params);
 
-        // 6. Tampilkan halaman pembayaran
         return view('bayar', compact('booking', 'snapToken'));
     }
 
     public function paymentSuccess($id)
     {
-        // 1. Cari pesanan berdasarkan ID
         $booking = Booking::findOrFail($id);
 
-        // 2. Ubah statusnya menjadi 'paid' (Lunas)
         $booking->update([
             'payment_status' => 'paid'
         ]);
 
-        // 3. Kembalikan ke halaman riwayat dengan pesan sukses
         return redirect()->route('riwayat')->with('success', 'Pembayaran berhasil dikonfirmasi! Terima kasih.');
     }
 
-    // Fungsi untuk membatalkan pesanan
-    // Fungsi untuk membatalkan pesanan
     public function cancel($id)
     {
         $booking = \App\Models\Booking::where('id', $id)
@@ -129,12 +152,10 @@ class BookingController extends Controller
 
         if ($booking->payment_status == 'pending') {
             
-            // 1. Ubah status pesanan menjadi dibatalkan
             $booking->update([
                 'payment_status' => 'cancelled' 
             ]);
 
-            // 2. Buka kembali ketersediaan armada di dashboard
             $schedule = \App\Models\Schedule::find($booking->schedule_id);
             if($schedule) {
                 $schedule->update([
