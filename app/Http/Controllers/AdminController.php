@@ -82,26 +82,28 @@ class AdminController extends Controller
             'shuttle_name' => 'required|string|max:255',
             'license_plate' => 'required|string|max:20|unique:shuttles,license_plate',
             'seat_capacity' => 'required|integer|min:1',
-            'route_id' => 'required|exists:routes,id',
+            // BARU: Ganti route_id dengan rute manual
+            'route_origin' => 'required|string|max:255',
+            'route_destination' => 'required|string|max:255',
             'departure_time' => 'required|date',
-            'arrival_time' => 'required|date|after:departure_time', // BARU: Validasi Waktu Tiba
+            'arrival_time' => 'required|date|after:departure_time',
             'price' => 'required|numeric',
             'is_available' => 'required|boolean'
         ]);
 
-        // Buat data Armada (Shuttle)
         $shuttle = \App\Models\Shuttle::create([
             'name' => $request->shuttle_name,
             'license_plate' => $request->license_plate, 
             'seat_capacity' => $request->seat_capacity,
         ]);
 
-        // Buat data Jadwal (Schedule)
         \App\Models\Schedule::create([
             'shuttle_id' => $shuttle->id,
-            'route_id' => $request->route_id,
+            // BARU: Simpan rute manual yang diketik
+            'route_origin' => $request->route_origin,
+            'route_destination' => $request->route_destination,
             'departure_time' => $request->departure_time,
-            'arrival_time' => $request->arrival_time, // BARU: Simpan Waktu Tiba
+            'arrival_time' => $request->arrival_time,
             'price' => $request->price,
             'is_available' => $request->is_available
         ]);
