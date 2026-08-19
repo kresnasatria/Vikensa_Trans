@@ -509,6 +509,55 @@
             Manajemen Rute
         </a>
 
+       {{-- MENU DATA ORDER --}}
+        @php
+            $unreadOrdersCount = \App\Models\Booking::where('is_read', false)->count();
+        @endphp
+        <a
+            href="{{ route('admin.orders.index') }}"
+            class="
+                mt-2
+                flex
+                items-center
+                justify-between
+                rounded-2xl
+                px-4
+                py-3.5
+                text-sm
+                font-semibold
+                text-slate-400
+                transition
+                hover:bg-white/5
+                hover:text-white
+            "
+        >
+            <div class="flex items-center gap-3">
+                <div
+                    class="
+                        flex
+                        h-9
+                        w-9
+                        items-center
+                        justify-center
+                        rounded-xl
+                        bg-white/5
+                    "
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012-2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                </div>
+                Data Order
+            </div>
+
+            {{-- BADGE ANGKA ORDER MASUK --}}
+            @if($unreadOrdersCount > 0)
+                <span class="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-sky-500 px-1.5 text-[10px] font-black text-white">
+                    {{ $unreadOrdersCount }}
+                </span>
+            @endif
+        </a>
+
 
 
         {{-- DIVIDER --}}

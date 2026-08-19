@@ -2,23 +2,19 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Models\Schedule; // Tambahkan ini di bagian paling atas file (di bawah <?php)
+use App\Models\Schedule;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\TripRouteController;
+use App\Http\Controllers\Admin\OrderController;
 
-// Dan tambahkan rute ini tepat di BAWAH rute /dashboard Anda:
-Route::get('/booking/{id}', [App\Http\Controllers\BookingController::class, 'create'])->name('book.create');
+// --- AREA USER & UMUM ---
+Route::get('/booking/{id}', [BookingController::class, 'create'])->name('book.create');
 Route::post('/book-shuttle', [BookingController::class, 'store'])->name('book.store')->middleware('auth');
-// Rute untuk membatalkan pesanan
-Route::put('/booking/{id}/cancel', [\App\Http\Controllers\BookingController::class, 'cancel'])->name('book.cancel');
+Route::put('/booking/{id}/cancel', [BookingController::class, 'cancel'])->name('book.cancel');
 
-// Tambahkan di bawah Route::post('/book-shuttle', ...)
 Route::get('/riwayat-pesanan', [BookingController::class, 'index'])->name('riwayat')->middleware('auth');
-
 Route::get('/bayar/{id}', [BookingController::class, 'pay'])->name('bayar');
-
-// Rute untuk mengubah status database setelah pembayaran berhasil
 Route::get('/payment-success/{id}', [BookingController::class, 'paymentSuccess'])->name('payment.success');
 
 Route::get('/', function () {
@@ -26,9 +22,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    // Menghapus where('is_available') agar SEMUA armada dipanggil ke layar
     $schedules = Schedule::with(['route.origin', 'route.destination', 'shuttle'])->get();
-
     return view('dashboard', compact('schedules'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -62,12 +56,14 @@ Route::middleware(['auth', \App\Http\Middleware\IsAdmin::class])->prefix('admin'
     Route::put('/rute/update/{id}', [TripRouteController::class, 'update'])->name('route.update');
     Route::delete('/rute/hapus/{id}', [TripRouteController::class, 'destroy'])->name('route.destroy');
 
+    // Rute untuk notifikasi pesanan baru (AJAX) - Bersih tanpa duplikasi
+    Route::get('/cek-pesanan-baru', [AdminController::class, 'checkNewOrders'])->name('checkOrders');
+
+    // Rute Halaman Manajemen Order (Nama otomatis jadi admin.orders.index)
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::put('/orders/status/{id}', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
+    // Rute untuk menandai pesanan sudah dibaca
+    Route::post('/orders/mark-read', [OrderController::class, 'markAsRead'])->name('orders.markRead');
 
 });
-
-
-
-
-    
-    
-
