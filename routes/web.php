@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Schedule; // Tambahkan ini di bagian paling atas file (di bawah <?php)
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Admin\TripRouteController;
 
 // Dan tambahkan rute ini tepat di BAWAH rute /dashboard Anda:
 Route::get('/booking/{id}', [App\Http\Controllers\BookingController::class, 'create'])->name('book.create');
@@ -54,6 +55,13 @@ Route::middleware(['auth', \App\Http\Middleware\IsAdmin::class])->prefix('admin'
     // Rute Tambah Data
     Route::get('/tambah', [AdminController::class, 'create'])->name('create');
     Route::post('/simpan', [AdminController::class, 'store'])->name('store');
+
+    // Rute Manajemen Rute & Harga
+    Route::get('/rute', [TripRouteController::class, 'index'])->name('route.index');
+    Route::post('/rute/simpan', [TripRouteController::class, 'store'])->name('route.store');
+    Route::put('/rute/update/{id}', [TripRouteController::class, 'update'])->name('route.update');
+    Route::delete('/rute/hapus/{id}', [TripRouteController::class, 'destroy'])->name('route.destroy');
+
 
 });
 
