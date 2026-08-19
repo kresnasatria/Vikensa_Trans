@@ -26,13 +26,12 @@ class AdminController extends Controller
     }
 
     // Menyimpan SEMUA perubahan ke database
-    public function update(Request $request, $id)
+   public function update(Request $request, $id)
     {
-        // Validasi semua inputan baru (Tanpa validasi rute)
+        // Validasi inputan baru (Tanpa validasi departure_time)
         $request->validate([
             'shuttle_name' => 'required|string|max:255',
             'seat_capacity' => 'required|integer|min:1',
-            'departure_time' => 'required|date',
             'price' => 'required|numeric',
             'is_available' => 'required|boolean'
         ]);
@@ -45,14 +44,13 @@ class AdminController extends Controller
             'seat_capacity' => $request->seat_capacity
         ]);
 
-        // 2. Update data Jadwal (Schedule) - Tanpa update rute
+        // 2. Update data Jadwal (Schedule) - Tanpa departure_time
         $schedule->update([
-            'departure_time' => $request->departure_time,
             'price' => $request->price,
             'is_available' => $request->is_available
         ]);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Seluruh data armada dan jadwal berhasil diperbarui!');
+        return redirect()->route('admin.dashboard')->with('success', 'Seluruh data armada berhasil diperbarui!');
     }
 
     // Menghapus data dari database

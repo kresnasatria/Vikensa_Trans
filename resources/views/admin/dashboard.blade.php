@@ -2151,39 +2151,7 @@
                                     >
                                         Armada
                                     </th>
-
-
-                                    <th
-                                        class="
-                                            px-6
-                                            py-5
-
-                                            text-[11px]
-                                            font-black
-                                            uppercase
-                                            tracking-wider
-                                            text-slate-400
-                                        "
-                                    >
-                                        Rute
-                                    </th>
-
-
-                                    <th
-                                        class="
-                                            px-6
-                                            py-5
-
-                                            text-[11px]
-                                            font-black
-                                            uppercase
-                                            tracking-wider
-                                            text-slate-400
-                                        "
-                                    >
-                                        Jadwal
-                                    </th>
-
+                                   
 
                                     <th
                                         class="
@@ -2367,97 +2335,6 @@
                                             </div>
 
                                         </td>
-
-
-
-                                        {{-- ROUTE --}}
-
-                                        <td
-                                            class="
-                                                px-6
-                                                py-5
-                                            "
-                                        >
-
-                                            <p
-                                                class="
-                                                    font-bold
-                                                    text-slate-800
-                                                "
-                                            >
-                                                {{ $schedule->route?->origin?->city ?? '-' }}
-
-                                                <span class="text-sky-500">
-                                                    →
-                                                </span>
-
-                                                {{ $schedule->route?->destination?->city ?? '-' }}
-                                            </p>
-
-
-                                            <p
-                                                class="
-                                                    mt-1
-
-                                                    max-w-[220px]
-
-                                                    text-xs
-                                                    leading-5
-                                                    text-slate-400
-                                                "
-                                            >
-                                                {{ $schedule->route?->origin?->point_name ?? '-' }}
-
-                                                →
-
-                                                {{ $schedule->route?->destination?->point_name ?? '-' }}
-                                            </p>
-
-                                        </td>
-
-
-
-                                        {{-- SCHEDULE --}}
-
-                                        <td
-                                            class="
-                                                px-6
-                                                py-5
-                                            "
-                                        >
-
-                                            <p
-                                                class="
-                                                    text-sm
-                                                    font-bold
-                                                    text-slate-800
-                                                "
-                                            >
-                                                {{ $departure->format('d M Y') }}
-                                            </p>
-
-
-                                            <p
-                                                class="
-                                                    mt-1
-                                                    text-xs
-                                                    text-slate-400
-                                                "
-                                            >
-                                                {{ $departure->format('H:i') }}
-
-                                                @if($arrival)
-
-                                                    -
-
-                                                    {{ $arrival->format('H:i') }}
-
-                                                @endif
-                                            </p>
-
-                                        </td>
-
-
 
                                         {{-- PRICE --}}
 
