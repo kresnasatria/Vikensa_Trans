@@ -20,20 +20,18 @@ class AdminController extends Controller
     {
         $schedule = Schedule::with(['shuttle', 'route.origin', 'route.destination'])->findOrFail($id);
         
-        // Mengambil semua rute yang tersedia di database untuk ditampilkan di Dropdown
-        $routes = \App\Models\Route::with(['origin', 'destination'])->get();
-        
-        return view('admin.edit', compact('schedule', 'routes'));
+        // Pemanggilan $routes dihapus karena form rute sudah dipisah
+
+        return view('admin.edit', compact('schedule'));
     }
 
     // Menyimpan SEMUA perubahan ke database
     public function update(Request $request, $id)
     {
-        // Validasi semua inputan baru
+        // Validasi semua inputan baru (Tanpa validasi rute)
         $request->validate([
             'shuttle_name' => 'required|string|max:255',
             'seat_capacity' => 'required|integer|min:1',
-            'route_id' => 'required|exists:routes,id',
             'departure_time' => 'required|date',
             'price' => 'required|numeric',
             'is_available' => 'required|boolean'
@@ -47,9 +45,8 @@ class AdminController extends Controller
             'seat_capacity' => $request->seat_capacity
         ]);
 
-        // 2. Update data Jadwal (Schedule)
+        // 2. Update data Jadwal (Schedule) - Tanpa update rute
         $schedule->update([
-            'route_id' => $request->route_id,
             'departure_time' => $request->departure_time,
             'price' => $request->price,
             'is_available' => $request->is_available
@@ -75,39 +72,37 @@ class AdminController extends Controller
         return view('admin.create', compact('routes'));
     }
 
-    // Menyimpan data armada dan jadwal baru ke database
+    // Menyimpan data armada baru ke database
     public function store(Request $request)
     {
+        // 1. Validasi hanya untuk data armada, harga, dan status
         $request->validate([
             'shuttle_name' => 'required|string|max:255',
             'license_plate' => 'required|string|max:20|unique:shuttles,license_plate',
             'seat_capacity' => 'required|integer|min:1',
-            // BARU: Ganti route_id dengan rute manual
-            'route_origin' => 'required|string|max:255',
-            'route_destination' => 'required|string|max:255',
-            'departure_time' => 'required|date',
-            'arrival_time' => 'required|date|after:departure_time',
             'price' => 'required|numeric',
             'is_available' => 'required|boolean'
         ]);
 
+        // 2. Simpan Data Armada
         $shuttle = \App\Models\Shuttle::create([
             'name' => $request->shuttle_name,
             'license_plate' => $request->license_plate, 
             'seat_capacity' => $request->seat_capacity,
         ]);
 
+        // 3. Simpan Harga Dasar & Status ke tabel Schedule
         \App\Models\Schedule::create([
             'shuttle_id' => $shuttle->id,
-            // BARU: Simpan rute manual yang diketik
-            'route_origin' => $request->route_origin,
-            'route_destination' => $request->route_destination,
-            'departure_time' => $request->departure_time,
-            'arrival_time' => $request->arrival_time,
             'price' => $request->price,
-            'is_available' => $request->is_available
+            'is_available' => $request->is_available,
+            // Kita kosongkan (null) kolom jadwal & rute lama karena input dari user
+            'route_origin' => null,
+            'route_destination' => null,
+            'departure_time' => null,
+            'arrival_time' => null
         ]);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Armada dan jadwal baru berhasil ditambahkan!');
+        return redirect()->route('admin.dashboard')->with('success', 'Armada baru berhasil ditambahkan!');
     }
 }

@@ -42,16 +42,21 @@ class BookingController extends Controller
     // Fungsi untuk menampilkan halaman form pemesanan
     public function create($id)
     {
-        $schedule = \App\Models\Schedule::with(['shuttle', 'route.origin', 'route.destination'])->findOrFail($id);
+        $schedule = \App\Models\Schedule::with(['shuttle'])->findOrFail($id);
 
         if (!$schedule->is_available) {
             return redirect()->route('dashboard')->with('error', 'Maaf, armada ini baru saja dipesan oleh orang lain.');
         }
 
-        return view('booking', compact('schedule'));
+        // AMBIL DATA RUTE DARI DATABASE UNTUK DROPDOWN
+        $routes = \App\Models\TripRoute::orderBy('origin', 'asc')->get();
+
+        return view('booking', compact('schedule', 'routes'));
     }
 
+
     // Fungsi untuk memproses data dari form pemesanan
+   // Fungsi untuk memproses data dari form pemesanan
     public function store(Request $request)
     {
         $request->validate([
@@ -64,19 +69,35 @@ class BookingController extends Controller
 
         $schedule = \App\Models\Schedule::findOrFail($request->schedule_id);
 
+        // ====================================================================
+        // FITUR KEAMANAN: Kalkulasi Ulang Harga di Backend
+        // Mencegah user memanipulasi total harga menggunakan Inspect Element
+        // ====================================================================
+        $tripRoute = \App\Models\TripRoute::where('origin', $request->custom_origin)
+                                          ->where('destination', $request->custom_destination)
+                                          ->first();
+                                          
+        $finalPrice = $schedule->price; // Masukkan harga dasar sewa
+        
+        if ($tripRoute) {
+            // Tambahkan ongkos rute dan harga bensin jika rutenya valid
+            $finalPrice += $tripRoute->route_cost + $tripRoute->fuel_cost;
+        }
+
+        // Simpan data pesanan ke database
         \App\Models\Booking::create([
-            'user_id' => Auth::id(),
+            'user_id' => \Illuminate\Support\Facades\Auth::id(),
             'schedule_id' => $schedule->id,
             'booking_code' => 'TRV-' . time(),
             'custom_origin' => $request->custom_origin,
             'custom_destination' => $request->custom_destination,
             'custom_departure_time' => $request->custom_departure_time,
             'custom_arrival_time' => $request->custom_arrival_time,
-            'total_price' => $schedule->price,
+            'total_price' => $finalPrice, // Harga akhir yang aman dari manipulasi
             'payment_status' => 'pending'
         ]);
 
-        // Kunci ketersediaan armada
+        // Kunci ketersediaan armada agar tidak dipesan orang lain bersamaan
         $schedule->update([
             'is_available' => false
         ]);
