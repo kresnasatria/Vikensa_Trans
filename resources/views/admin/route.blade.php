@@ -49,7 +49,22 @@
 
             {{-- TABEL DAFTAR RUTE (EDIT LANGSUNG) --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-[2rem] border border-slate-200 p-8">
-                <h3 class="text-xl font-black text-slate-900 mb-6">Daftar Rute & Update Harga Cepat</h3>
+                
+                {{-- HEADER DAN LIVE SEARCH --}}
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <h3 class="text-xl font-black text-slate-900">Daftar Rute & Update Harga Cepat</h3>
+                    
+                    {{-- KOTAK INPUT LIVE SEARCH --}}
+                    <div class="relative w-full sm:w-72">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </span>
+                        <input type="text" id="liveSearchInput" placeholder="Cari rute (misal: Jakarta)..." 
+                            class="w-full h-11 rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-xs font-bold text-slate-800 outline-none focus:border-sky-500 focus:bg-white transition">
+                    </div>
+                </div>
                 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
@@ -61,10 +76,10 @@
                                 <th class="p-4 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="routeTableBody">
                             @forelse($routes as $rute)
-                                <tr class="border-b border-slate-100 hover:bg-slate-50/50">
-                                    <td class="p-4 font-bold text-slate-800">
+                                <tr class="route-row border-b border-slate-100 hover:bg-slate-50/50">
+                                    <td class="p-4 font-bold text-slate-800 route-text">
                                         {{ $rute->origin }} <span class="text-sky-400">➔</span> {{ $rute->destination }}
                                     </td>
                                     
@@ -94,7 +109,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr>
+                                <tr id="emptyRow">
                                     <td colspan="4" class="p-8 text-center text-slate-500 font-medium border-dashed border-2 border-slate-200 rounded-xl">
                                         Belum ada rute yang didaftarkan.
                                     </td>
@@ -107,4 +122,30 @@
 
         </div>
     </div>
+
+    {{-- SCRIPT JAVASCRIPT UNTUK LIVE SEARCH --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('liveSearchInput');
+            const rows = document.querySelectorAll('.route-row');
+
+            if (searchInput) {
+                searchInput.addEventListener('keyup', function() {
+                    const keyword = searchInput.value.toLowerCase();
+
+                    rows.forEach(row => {
+                        const textElement = row.querySelector('.route-text');
+                        if (textElement) {
+                            const text = textElement.textContent.toLowerCase();
+                            if (text.includes(keyword)) {
+                                row.style.display = ''; // Tampilkan
+                            } else {
+                                row.style.display = 'none'; // Sembunyikan
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    </script>
 </x-app-layout>
