@@ -105,4 +105,18 @@ class AdminController extends Controller
 
         return redirect()->route('admin.dashboard')->with('success', 'Armada baru berhasil ditambahkan!');
     }
+
+    // Mengecek pesanan baru untuk notifikasi AJAX
+   public function checkNewOrders()
+{
+    $latestOrder = \App\Models\Booking::orderBy('id', 'desc')->first();
+    
+    // Hitung jumlah order yang belum dibaca (untuk badge sidebar secara real-time)
+    $unreadCount = \App\Models\Booking::where('is_read', false)->count();
+
+    return response()->json([
+        'latest_id' => $latestOrder ? $latestOrder->id : 0,
+        'unread_count' => $unreadCount
+    ]);
+}
 }

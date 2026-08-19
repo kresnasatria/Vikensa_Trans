@@ -93,11 +93,11 @@ class BookingController extends Controller
             'custom_destination' => $request->custom_destination,
             'custom_departure_time' => $request->custom_departure_time,
             'custom_arrival_time' => $request->custom_arrival_time,
-            'total_price' => $finalPrice, // Harga akhir yang aman dari manipulasi
-            'payment_status' => 'pending'
+            'total_price' => $finalPrice,
+            'payment_status' => 'pending' // <-- Otomatis pending saat pertama kali dibooking
         ]);
 
-        // Kunci ketersediaan armada agar tidak dipesan orang lain bersamaan
+        // Kunci unit armada agar langsung berubah menjadi "Disewa/Tidak Tersedia" di halaman user
         $schedule->update([
             'is_available' => false
         ]);
@@ -154,15 +154,16 @@ class BookingController extends Controller
         return view('bayar', compact('booking', 'snapToken'));
     }
 
-    public function paymentSuccess($id)
+    // Di dalam BookingController.php (fungsi paymentSuccess / callback pembayaran)
+        public function paymentSuccess($id)
     {
-        $booking = Booking::findOrFail($id);
-
+        $booking = \App\Models\Booking::findOrFail($id);
+        
         $booking->update([
-            'payment_status' => 'paid'
+            'payment_status' => 'paid' // Diubah dari 'lunas' menjadi 'paid'
         ]);
 
-        return redirect()->route('riwayat')->with('success', 'Pembayaran berhasil dikonfirmasi! Terima kasih.');
+        return redirect()->route('riwayat')->with('success', 'Pembayaran berhasil! Status pesanan Anda sudah Paid.');
     }
 
     public function cancel($id)
