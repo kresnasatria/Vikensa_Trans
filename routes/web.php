@@ -18,7 +18,9 @@ Route::get('/bayar/{id}', [BookingController::class, 'pay'])->name('bayar');
 Route::get('/payment-success/{id}', [BookingController::class, 'paymentSuccess'])->name('payment.success');
 
 Route::get('/', function () {
-    return view('welcome');
+    // Ambil semua data jadwal beserta relasi armadanya
+    $schedules = \App\Models\Schedule::with('shuttle')->get();
+    return view('welcome', compact('schedules'));
 });
 
 Route::get('/dashboard', function () {

@@ -27,31 +27,32 @@ class AdminController extends Controller
 
     // Menyimpan SEMUA perubahan ke database
    public function update(Request $request, $id)
-    {
-        // Validasi inputan baru (Tanpa validasi departure_time)
-        $request->validate([
-            'shuttle_name' => 'required|string|max:255',
-            'seat_capacity' => 'required|integer|min:1',
-            'price' => 'required|numeric',
-            'is_available' => 'required|boolean'
-        ]);
+{
+    $request->validate([
+        'shuttle_name' => 'required|string|max:255',
+        'license_plate' => 'required|string|max:50', // <--- BARIS BARU INI
+        'seat_capacity' => 'required|integer|min:1',
+        'price' => 'required|numeric',
+        'is_available' => 'required|boolean'
+    ]);
 
-        $schedule = Schedule::findOrFail($id);
+    $schedule = Schedule::findOrFail($id);
 
-        // 1. Update data Armada (Shuttle)
-        $schedule->shuttle->update([
-            'name' => $request->shuttle_name,
-            'seat_capacity' => $request->seat_capacity
-        ]);
+    // 2. Tambahkan license_plate ke dalam proses update armada (shuttle)
+    $schedule->shuttle->update([
+        'name' => $request->shuttle_name,
+        'license_plate' => strtoupper($request->license_plate), // <--- BARIS BARU INI (strtoupper agar plat otomatis huruf besar)
+        'seat_capacity' => $request->seat_capacity
+    ]);
 
-        // 2. Update data Jadwal (Schedule) - Tanpa departure_time
-        $schedule->update([
-            'price' => $request->price,
-            'is_available' => $request->is_available
-        ]);
+    // 3. Update data Jadwal (Schedule)
+    $schedule->update([
+        'price' => $request->price,
+        'is_available' => $request->is_available
+    ]);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Seluruh data armada berhasil diperbarui!');
-    }
+    return redirect()->route('admin.dashboard')->with('success', 'Seluruh data armada berhasil diperbarui!');
+}
 
     // Menghapus data dari database
     public function destroy($id)

@@ -85,16 +85,29 @@ class BookingController extends Controller
         }
 
         // Simpan data pesanan ke database
-        \App\Models\Booking::create([
+            \App\Models\Booking::create([
             'user_id' => \Illuminate\Support\Facades\Auth::id(),
             'schedule_id' => $schedule->id,
             'booking_code' => 'TRV-' . time(),
+            
+            // Data Pemesan Baru
+            'booker_name' => $request->booker_name,
+            'phone_number' => $request->phone_number,
+            'pickup_address' => $request->pickup_address,
+            
+            // Data Rute
             'custom_origin' => $request->custom_origin,
             'custom_destination' => $request->custom_destination,
-            'custom_departure_time' => $request->custom_departure_time,
-            'custom_arrival_time' => $request->custom_arrival_time,
-            'total_price' => $finalPrice,
-            'payment_status' => 'pending' // <-- Otomatis pending saat pertama kali dibooking
+            
+           
+            'total_price' => $finalPrice, 
+            
+            'payment_status' => 'pending'
+        ]);
+
+        // UBAH STATUS KETERSEDIAAN ARMADA MENJADI "FALSE" (DISEWA)
+        $schedule->update([
+            'is_available' => false
         ]);
 
         // Kunci unit armada agar langsung berubah menjadi "Disewa/Tidak Tersedia" di halaman user
