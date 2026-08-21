@@ -53,13 +53,39 @@
 
                     <form action="{{ route('book.store') }}" method="POST" id="bookingForm">
                         @csrf
-                        <input type="hidden" name="schedule_id" value="{{ $schedule->id }}">
                         
-                        <!-- Input Tersembunyi Untuk Menyimpan Data Asal dan Tujuan -->
+                        <!-- Input Tersembunyi -->
+                        <input type="hidden" name="schedule_id" value="{{ $schedule->id }}">
                         <input type="hidden" name="custom_origin" id="hidden_origin">
                         <input type="hidden" name="custom_destination" id="hidden_destination">
-                        <!-- Input Tersembunyi Untuk Menyimpan Total Harga Kalkulasi -->
                         <input type="hidden" name="calculated_total_price" id="hidden_total_price" value="{{ $schedule->price }}">
+
+                        {{-- FORM DATA PEMESAN & KONTAK --}}
+                        <div class="mb-6 rounded-2xl bg-blue-50/50 p-6 border border-blue-100">
+                            <h4 class="font-bold text-blue-900 mb-4 flex items-center gap-2">
+                                <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">1</span>
+                                Informasi Pemesan & Kontak Jemput
+                            </h4>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">Nama Pemesan</label>
+                                    <input type="text" name="booker_name" value="{{ Auth::user()->name ?? '' }}" required class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                </div>
+
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">No. WhatsApp / HP</label>
+                                    <input type="text" name="phone_number" placeholder="Cth: 081234567890" required class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Alamat Detail Titik Jemput</label>
+                                <textarea name="pickup_address" rows="2" placeholder="Sebutkan nama jalan, no rumah, RT/RW, atau patokan yang jelas..." required class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
+                            </div>
+                        </div>
+                        <!-- AKHIR FORM DATA PEMESAN -->
+
 
                         <!-- Grid Pilih Kota Asal & Kota Tujuan (DENGAN PENCARIAN) -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">

@@ -18,6 +18,10 @@
                                 <thead>
                                     <tr class="border-b bg-gray-50">
                                         <th class="p-4 text-sm font-semibold text-gray-600">Kode Booking</th>
+                                        
+                                        {{-- KOLOM WAKTU PEMESANAN BARU --}}
+                                        <th class="p-4 text-sm font-semibold text-gray-600">Waktu Pemesanan</th>
+                                        
                                         <th class="p-4 text-sm font-semibold text-gray-600">Armada & Rute</th>
                                         <th class="p-4 text-sm font-semibold text-gray-600">Total Harga</th>
                                         <th class="p-4 text-sm font-semibold text-gray-600 text-center">Status</th>
@@ -28,6 +32,17 @@
                                     @foreach($bookings as $booking)
                                         <tr class="border-b hover:bg-gray-50 transition">
                                             <td class="p-4 font-bold text-gray-800">{{ $booking->booking_code }}</td>
+                                            
+                                            {{-- DATA WAKTU PEMESANAN BARU --}}
+                                            <td class="p-4">
+                                                <p class="text-sm font-bold text-gray-700">
+                                                    {{ $booking->created_at->timezone('Asia/Jakarta')->format('d M Y') }}
+                                                </p>
+                                                <p class="text-xs text-gray-500 mt-0.5">
+                                                    {{ $booking->created_at->timezone('Asia/Jakarta')->format('H:i') }} WIB
+                                                </p>
+                                            </td>
+
                                             <td class="p-4">
                                                 <p class="font-semibold">{{ $booking->schedule->shuttle->name }}</p>
                                                 <p class="text-sm text-gray-500 font-medium">

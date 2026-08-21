@@ -37,7 +37,8 @@
                         <thead>
                             <tr class="bg-slate-50 border-b border-slate-200 text-xs font-black uppercase text-slate-500 tracking-wider">
                                 <th class="p-4">Kode Booking</th>
-                                <th class="p-4">Pemesan</th>
+                                <th class="p-4">Waktu Order</th> {{-- KOLOM BARU --}}
+                                <th class="p-4 min-w-[200px]">Pemesan & Detail Jemput</th>
                                 <th class="p-4">Armada</th>
                                 <th class="p-4">Rute Perjalanan</th>
                                 <th class="p-4">Total Harga</th>
@@ -51,9 +52,36 @@
                                     <td class="p-4 font-black text-sky-600">
                                         {{ $order->booking_code }}
                                     </td>
-                                    <td class="p-4 font-bold text-slate-800">
-                                        {{ $order->user->name ?? 'User Tamu' }}
+                                    
+                                    {{-- TAMPILAN WAKTU ORDER BARU --}}
+                                    <td class="p-4">
+                                        <p class="text-xs font-bold text-slate-700">
+                                            {{ $order->created_at->format('d M Y') }}
+                                        </p>
+                                        <p class="mt-1 text-[11px] font-semibold text-slate-400">
+                                            {{ $order->created_at->format('H:i') }} WIB
+                                        </p>
                                     </td>
+
+                                    <td class="p-4">
+                                        {{-- Nama Pemesan --}}
+                                        <p class="font-black text-slate-800">
+                                            {{ $order->booker_name ?? ($order->user->name ?? 'User Tamu') }}
+                                        </p>
+                                        
+                                        {{-- No HP --}}
+                                        <p class="mt-1 flex items-center gap-1 text-xs font-semibold text-slate-600">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-3 w-3"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                                            {{ $order->phone_number ?? 'Tidak ada No HP' }}
+                                        </p>
+                                        
+                                        {{-- Alamat --}}
+                                        <p class="mt-1 flex items-start gap-1 text-xs text-slate-400 max-w-[200px]" title="{{ $order->pickup_address }}">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-3 w-3 shrink-0 mt-0.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
+                                            <span class="truncate">{{ $order->pickup_address ?? 'Tidak ada rincian alamat' }}</span>
+                                        </p>
+                                    </td>
+
                                     <td class="p-4 font-semibold text-slate-700">
                                         {{ $order->schedule->shuttle->name ?? 'Armada Charter' }}
                                     </td>
@@ -86,7 +114,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="p-8 text-center text-slate-500 font-medium border-dashed border-2 border-slate-200 rounded-xl">
+                                    {{-- Mengubah colspan menjadi 8 karena ada penambahan kolom Waktu Order --}}
+                                    <td colspan="8" class="p-8 text-center text-slate-500 font-medium border-dashed border-2 border-slate-200 rounded-xl">
                                         Belum ada data pesanan yang masuk.
                                     </td>
                                 </tr>
