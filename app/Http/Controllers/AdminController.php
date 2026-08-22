@@ -86,20 +86,17 @@ class AdminController extends Controller
         // 2. Simpan Data Armada
         $shuttle = \App\Models\Shuttle::create([
             'name' => $request->shuttle_name,
-            'license_plate' => $request->license_plate, 
+            'license_plate' => strtoupper($request->license_plate), 
             'seat_capacity' => $request->seat_capacity,
         ]);
 
-        // 3. Simpan Harga Dasar & Status ke tabel Schedule
+        // 3. Simpan Harga Dasar & Status ke tabel Schedule dengan nilai default waktu
         \App\Models\Schedule::create([
             'shuttle_id' => $shuttle->id,
             'price' => $request->price,
             'is_available' => $request->is_available,
-            // Kita kosongkan (null) kolom jadwal & rute lama karena input dari user
-            'route_origin' => null,
-            'route_destination' => null,
-            'departure_time' => null,
-            'arrival_time' => null
+            'departure_time' => now(), // Memberikan nilai tanggal & jam saat ini
+            'arrival_time' => now()    // Memberikan nilai tanggal & jam saat ini
         ]);
 
         return redirect()->route('admin.dashboard')->with('success', 'Armada baru berhasil ditambahkan!');
