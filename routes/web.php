@@ -7,6 +7,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\TripRouteController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ServiceLogController; // <--- INI BARIS BARU (Import Controller Servis)
 
 // --- AREA USER & UMUM ---
 Route::get('/booking/{id}', [BookingController::class, 'create'])->name('book.create');
@@ -32,6 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/booking/receipt/{id}', [App\Http\Controllers\BookingController::class, 'downloadReceipt'])->name('booking.receipt')->middleware('auth');
 });
 
 require __DIR__.'/auth.php';
@@ -67,5 +69,8 @@ Route::middleware(['auth', \App\Http\Middleware\IsAdmin::class])->prefix('admin'
 
     // Rute untuk menandai pesanan sudah dibaca
     Route::post('/orders/mark-read', [OrderController::class, 'markAsRead'])->name('orders.markRead');
+
+    // --- INI BARIS BARU (Rute untuk Catatan Servis Kendaraan) ---
+    Route::resource('services', ServiceLogController::class);
 
 });

@@ -64,10 +64,18 @@
                                                         <span class="time-display">Menghitung...</span>
                                                     </div>
 
-                                                @elseif($booking->payment_status == 'paid')
-                                                    <span class="bg-green-100 text-green-800 py-1 px-3 rounded-full text-xs font-bold">Lunas</span>
+                                            @elseif($booking->payment_status == 'paid')
+                                                    <!-- TOMBOL CETAK KWITANSI -->
+                                                    <a href="{{ route('booking.receipt', $booking->id) }}" target="_blank" class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-lg text-xs font-bold transition">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                                        </svg>
+                                                        Kwitansi
+                                                    </a>
                                                 @elseif($booking->payment_status == 'cancelled')
-                                                    <span class="bg-red-100 text-red-800 py-1 px-3 rounded-full text-xs font-bold">Dibatalkan</span>
+                                                    <span class="text-gray-400 text-sm font-semibold">-</span>
+                                                @else
+                                                    <span class="text-gray-400 text-sm">-</span>
                                                 @endif
                                             </td>
                                             <td class="p-4 text-center">

@@ -8,7 +8,6 @@
     <!-- TAMBAHKAN LIBRARY SELECT2 UNTUK DROPDOWN PENCARIAN -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
-        /* Kustomisasi Select2 agar persis dengan desain Tailwind bawaan Anda */
         .select2-container .select2-selection--single {
             height: 46px !important;
             border-radius: 0.375rem !important;
@@ -27,14 +26,6 @@
             font-weight: 500 !important;
             padding-left: 12px !important;
         }
-        .select2-container--default.select2-container--disabled .select2-selection--single {
-            background-color: #e5e7eb !important;
-            cursor: not-allowed !important;
-        }
-        .select2-container--default.select2-container--open .select2-selection--single {
-            border-color: #3b82f6 !important;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
-        }
         .select2-search__field {
             outline: none !important;
             border-radius: 0.25rem !important;
@@ -48,7 +39,7 @@
                     
                     <div class="mb-8 border-b pb-4">
                         <h3 class="text-xl font-bold">Armada Pilihan: {{ $schedule->shuttle->name }}</h3>
-                        <p class="text-sm text-gray-500">Kapasitas: {{ $schedule->shuttle->seat_capacity }} Penumpang | Harga Dasar: Rp {{ number_format($schedule->price, 0, ',', '.') }}</p>
+                        <p class="text-sm text-gray-500">Kapasitas: {{ $schedule->shuttle->seat_capacity }} Penumpang | Sewa Per Hari: Rp {{ number_format($schedule->price, 0, ',', '.') }}</p>
                     </div>
 
                     <form action="{{ route('book.store') }}" method="POST" id="bookingForm">
@@ -84,28 +75,20 @@
                                 <textarea name="pickup_address" rows="2" placeholder="Sebutkan nama jalan, no rumah, RT/RW, atau patokan yang jelas..." required class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
                             </div>
                         </div>
-                        <!-- AKHIR FORM DATA PEMESAN -->
 
-
-                        <!-- Grid Pilih Kota Asal & Kota Tujuan (DENGAN PENCARIAN) -->
+                        <!-- Grid Pilih Kota Asal & Kota Tujuan -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="origin_city">
-                                    Kota Jemput (Asal)
-                                </label>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="origin_city">Kota Jemput (Asal)</label>
                                 <select id="origin_city" required class="w-full">
                                     <option value="">-- Ketik / Pilih Kota Asal --</option>
-                                    <!-- Opsi diisi otomatis oleh JavaScript -->
                                 </select>
                             </div>
 
                             <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="destination_city">
-                                    Kota Tujuan
-                                </label>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="destination_city">Kota Tujuan</label>
                                 <select id="destination_city" required disabled class="w-full">
                                     <option value="">-- Ketik / Pilih Kota Tujuan --</option>
-                                    <!-- Opsi diisi otomatis oleh JavaScript berdasarkan Kota Asal -->
                                 </select>
                             </div>
                         </div>
@@ -113,17 +96,13 @@
                         <!-- Grid Waktu Berangkat & Waktu Selesai -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                             <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="custom_departure_time">
-                                    Rencana Waktu Keberangkatan
-                                </label>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="custom_departure_time">Rencana Waktu Keberangkatan</label>
                                 <input class="shadow appearance-none border rounded w-full py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" 
                                     id="custom_departure_time" type="datetime-local" name="custom_departure_time" required>
                             </div>
 
                             <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="custom_arrival_time">
-                                    Rencana Waktu Selesai (Kembali)
-                                </label>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="custom_arrival_time">Rencana Waktu Selesai (Kembali)</label>
                                 <input class="shadow appearance-none border rounded w-full py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" 
                                     id="custom_arrival_time" type="datetime-local" name="custom_arrival_time" required>
                             </div>
@@ -134,18 +113,13 @@
                             <h4 class="font-bold text-blue-900 mb-4 border-b border-blue-200 pb-2">Kalkulasi Rincian Biaya</h4>
                             
                             <div class="flex justify-between text-sm text-gray-700 mb-2">
-                                <span>Harga Dasar Sewa Armada:</span>
+                                <span>Harga Sewa Armada Per Hari:</span>
                                 <span id="label_base_price" data-price="{{ $schedule->price }}" class="font-medium">Rp {{ number_format($schedule->price, 0, ',', '.') }}</span>
                             </div>
                             
-                            <div class="flex justify-between text-sm text-gray-700 mb-2">
-                                <span>Ongkos Rute Perjalanan:</span>
-                                <span id="label_route_cost" class="font-medium text-amber-600">Rp 0</span>
-                            </div>
-                            
                             <div class="flex justify-between text-sm text-gray-700 mb-4">
-                                <span>Estimasi Biaya Bensin:</span>
-                                <span id="label_fuel_cost" class="font-medium text-amber-600">Rp 0</span>
+                                <span>Jumlah Hari (Durasi Sewa):</span>
+                                <span id="label_days_count" class="font-medium text-amber-600">1 Hari</span>
                             </div>
                             
                             <div class="flex justify-between text-lg font-black text-blue-700 border-t border-blue-200 pt-4">
@@ -170,17 +144,18 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <!-- SCRIPT KALKULATOR REAL-TIME -->
+    <!-- SCRIPT KALKULATOR HARIAN REAL-TIME -->
     <script>
         $(document).ready(function() {
-            // Ambil data rute dari backend PHP
             const routesData = @json($routes);
 
             const originSelect = $('#origin_city');
             const destinationSelect = $('#destination_city');
             
-            const labelRouteCost = $('#label_route_cost');
-            const labelFuelCost = $('#label_fuel_cost');
+            const departureInput = $('#custom_departure_time');
+            const arrivalInput = $('#custom_arrival_time');
+
+            const labelDaysCount = $('#label_days_count');
             const labelTotalPrice = $('#label_total_price');
             
             const hiddenOrigin = $('#hidden_origin');
@@ -188,81 +163,82 @@
             const hiddenTotalPrice = $('#hidden_total_price');
 
             const basePrice = parseInt($('#label_base_price').data('price'));
+            let totalDays = 1;
 
-            // INISIALISASI FITUR KETIK (SEARCH) PADA DROPDOWN
             originSelect.select2({ width: '100%', placeholder: '-- Ketik / Pilih Kota Asal --' });
             destinationSelect.select2({ width: '100%', placeholder: '-- Ketik / Pilih Kota Tujuan --' });
 
-            // Format angka menjadi bentuk Rupiah
             function formatRupiah(number) {
-                return new Intl.NumberFormat('id-ID', { 
-                    style: 'currency', 
-                    currency: 'IDR', 
-                    minimumFractionDigits: 0 
-                }).format(number).replace("Rp", "Rp ").replace(",00", "");
+                return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number).replace("Rp", "Rp ").replace(",00", "");
             }
 
-            // 1. Ekstrak kota asal (origin) yang unik dan masukkan ke dropdown asal
+            // 1. Ekstrak data asal rute
             const uniqueOrigins = [...new Set(routesData.map(item => item.origin))];
             uniqueOrigins.forEach(origin => {
                 originSelect.append(new Option(origin, origin));
             });
 
-            // 2. Fungsi untuk reset kalkulasi
-            function resetCalculation() {
-                hiddenOrigin.val(originSelect.val());
-                hiddenDestination.val("");
-                hiddenTotalPrice.val(basePrice);
-                
-                labelRouteCost.text("Rp 0");
-                labelFuelCost.text("Rp 0");
-                labelTotalPrice.text(formatRupiah(basePrice));
+            // 2. Fungsi Hitung Jumlah Hari
+            function calculateDays() {
+                const depVal = departureInput.val();
+                const arrVal = arrivalInput.val();
+
+                if (depVal && arrVal) {
+                    const depDate = new Date(depVal);
+                    const arrDate = new Date(arrVal);
+
+                    if (arrDate > depDate) {
+                        const diffTime = Math.abs(arrDate - depDate);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                        totalDays = diffDays === 0 ? 1 : diffDays; // Minimal 1 hari
+                    } else {
+                        totalDays = 1; // Jika tanggal kembali lebih kecil/sama dengan tanggal berangkat
+                    }
+                } else {
+                    totalDays = 1;
+                }
+
+                labelDaysCount.text(totalDays + " Hari");
+                updateTotalPrice();
             }
 
-            // 3. Saat Kota Asal dipilih / diketik
+            // 3. Fungsi Update Total Harga
+            function updateTotalPrice() {
+                const total = basePrice * totalDays;
+                hiddenTotalPrice.val(total);
+                labelTotalPrice.text(formatRupiah(total));
+            }
+
+            // Listeners untuk kalender
+            departureInput.on('change', calculateDays);
+            arrivalInput.on('change', calculateDays);
+
+            // 4. Saat Kota Asal dipilih
             originSelect.on('change', function() {
                 const selectedOrigin = $(this).val();
-
-                // Bersihkan dan matikan sementara dropdown tujuan
                 destinationSelect.empty().append(new Option('-- Ketik / Pilih Kota Tujuan --', ''));
                 
-                // Filter rute yang tujuan akhirnya tersedia dari kota asal ini
                 const availableDestinations = routesData.filter(item => item.origin === selectedOrigin);
 
                 availableDestinations.forEach(route => {
-                    let opt = new Option(route.destination, route.destination);
-                    $(opt).attr('data-route-cost', route.route_cost);
-                    $(opt).attr('data-fuel-cost', route.fuel_cost);
-                    destinationSelect.append(opt);
+                    let displayDestination = route.destination;
+                    try {
+                        let parsedDest = JSON.parse(route.destination);
+                        if (Array.isArray(parsedDest)) {
+                            displayDestination = parsedDest.join(' ➔ '); 
+                        }
+                    } catch (e) {}
+
+                    destinationSelect.append(new Option(displayDestination, displayDestination));
                 });
 
-                // Aktifkan dropdown tujuan
                 destinationSelect.prop('disabled', false).trigger('change.select2');
-
-                resetCalculation();
+                hiddenOrigin.val(selectedOrigin);
             });
 
-            // 4. Saat Kota Tujuan dipilih / diketik
+            // 5. Saat Kota Tujuan dipilih
             destinationSelect.on('change', function() {
-                const selectedOption = $(this).find(':selected');
-                
-                if (!selectedOption.val()) return; // Hindari kalkulasi jika opsi kosong
-
-                const routeCost = parseInt(selectedOption.attr('data-route-cost')) || 0;
-                const fuelCost = parseInt(selectedOption.attr('data-fuel-cost')) || 0;
-                
-                // Isi input tersembunyi
-                hiddenOrigin.val(originSelect.val());
                 hiddenDestination.val($(this).val());
-
-                // Kalkulasi Total
-                const total = basePrice + routeCost + fuelCost;
-                hiddenTotalPrice.val(total);
-
-                // Tampilkan di layar
-                labelRouteCost.text(formatRupiah(routeCost));
-                labelFuelCost.text(formatRupiah(fuelCost));
-                labelTotalPrice.text(formatRupiah(total));
             });
         });
     </script>
