@@ -15,19 +15,25 @@ class TripRouteController extends Controller
         return view('admin.route', compact('routes'));
     }
 
-    // Menyimpan rute baru
+    // Menyimpan rute baru (Mendukung Multi-Kota / Multi-Stop)
     public function store(Request $request)
     {
         $request->validate([
             'origin' => 'required|string|max:255',
-            'destination' => 'required|string|max:255',
-            'route_cost' => 'required|numeric|min:0',
-            'fuel_cost' => 'required|numeric|min:0',
+            'destinations' => 'required|array|min:1', 
+            'destinations.*' => 'required|string|max:255', 
         ]);
 
-        TripRoute::create($request->all());
+        $destinationJson = json_encode($request->destinations);
 
-        return back()->with('success', 'Rute perjalanan baru berhasil ditambahkan!');
+        TripRoute::create([
+            'origin' => $request->origin,
+            'destination' => $destinationJson, 
+            'route_cost' => 0, // Kita set 0 karena tidak digunakan lagi
+            'fuel_cost' => 0,  // Kita set 0 karena tidak digunakan lagi
+        ]);
+
+        return back()->with('success', 'Rute multi-kota baru berhasil ditambahkan!');
     }
 
     // Memperbarui harga ongkos & bensin (Update Cepat)

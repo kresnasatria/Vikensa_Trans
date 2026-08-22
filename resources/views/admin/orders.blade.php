@@ -99,17 +99,29 @@
                                         @endif
                                     </td>
                                     <td class="p-4 text-center">
-                                        <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST" class="inline-flex items-center gap-2">
-                                            @csrf
-                                            @method('PUT')
-                                            <select name="payment_status" class="rounded-xl border-slate-200 bg-slate-50 text-xs font-bold py-2 pl-3 pr-8 focus:ring-2 focus:ring-sky-500 outline-none">
-                                                <option value="pending" {{ $order->payment_status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                                <option value="paid" {{ $order->payment_status == 'paid' ? 'selected' : '' }}>Lunas</option>
-                                            </select>
-                                            <button type="submit" class="bg-slate-950 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition">
-                                                Simpan
-                                            </button>
-                                        </form>
+                                        <div class="flex items-center justify-center gap-2">
+                                            {{-- FORM UBAH STATUS --}}
+                                            <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST" class="inline-flex items-center gap-2">
+                                                @csrf
+                                                @method('PUT')
+                                                <select name="payment_status" class="rounded-xl border-slate-200 bg-slate-50 text-xs font-bold py-2 pl-3 pr-8 focus:ring-2 focus:ring-sky-500 outline-none">
+                                                    <option value="pending" {{ $order->payment_status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                                    <option value="paid" {{ $order->payment_status == 'paid' ? 'selected' : '' }}>Lunas</option>
+                                                </select>
+                                                <button type="submit" class="bg-slate-950 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition">
+                                                    Simpan
+                                                </button>
+                                            </form>
+
+                                            {{-- TOMBOL CETAK KWITANSI (HANYA MUNCUL JIKA LUNAS) --}}
+                                            @if($order->payment_status == 'paid')
+                                                <a href="{{ route('booking.receipt', $order->id) }}" target="_blank" title="Cetak Kwitansi" class="flex shrink-0 h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                                    </svg>
+                                                </a>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

@@ -1,13 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use App\Models\Schedule;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
 use Midtrans\Config;
 use Midtrans\Snap;
+
 
 class BookingController extends Controller
 {
@@ -58,65 +59,68 @@ class BookingController extends Controller
     // Fungsi untuk memproses data dari form pemesanan
    // Fungsi untuk memproses data dari form pemesanan
     public function store(Request $request)
-    {
-        $request->validate([
-            'schedule_id' => 'required|exists:schedules,id',
-            'custom_origin' => 'required|string|max:255',
-            'custom_destination' => 'required|string|max:255',
-            'custom_departure_time' => 'required|date',
-            'custom_arrival_time' => 'required|date|after:custom_departure_time',
-        ]);
+        {
+            // 1. Validasi Input
+            $request->validate([
+                'schedule_id' => 'required|exists:schedules,id',
+                'custom_origin' => 'required|string|max:255',
+                'custom_destination' => 'required|string|max:255',
+                'custom_departure_time' => 'required|date',
+                'custom_arrival_time' => 'required|date|after_or_equal:custom_departure_time',
+                'booker_name' => 'required|string|max:255',
+                'phone_number' => 'required|string|max:20',
+                'pickup_address' => 'required|string',
+            ]);
 
-        $schedule = \App\Models\Schedule::findOrFail($request->schedule_id);
+            $schedule = \App\Models\Schedule::findOrFail($request->schedule_id);
 
-        // ====================================================================
-        // FITUR KEAMANAN: Kalkulasi Ulang Harga di Backend
-        // Mencegah user memanipulasi total harga menggunakan Inspect Element
-        // ====================================================================
-        $tripRoute = \App\Models\TripRoute::where('origin', $request->custom_origin)
-                                          ->where('destination', $request->custom_destination)
-                                          ->first();
-                                          
-        $finalPrice = $schedule->price; // Masukkan harga dasar sewa
-        
-        if ($tripRoute) {
-            // Tambahkan ongkos rute dan harga bensin jika rutenya valid
-            $finalPrice += $tripRoute->route_cost + $tripRoute->fuel_cost;
-        }
+            // ====================================================================
+            // FITUR KEAMANAN: Kalkulasi Ulang Harga di Backend (Berdasarkan HARI)
+            // Mencegah user memanipulasi total harga menggunakan Inspect Element
+            // ====================================================================
+            
+            $departure = \Carbon\Carbon::parse($request->custom_departure_time);
+            $arrival = \Carbon\Carbon::parse($request->custom_arrival_time);
+            
+            // Hitung selisih hari. Jika kembalinya di hari yang sama, hitung sebagai 1 hari.
+            $days = $departure->diffInDays($arrival);
+            $days = $days == 0 ? 1 : $days; 
 
-        // Simpan data pesanan ke database
+            // Harga Akhir = Harga sewa per hari dikali jumlah hari
+            $finalPrice = $schedule->price * $days;
+
+            // ====================================================================
+
+            // Simpan data pesanan ke database
             \App\Models\Booking::create([
-            'user_id' => \Illuminate\Support\Facades\Auth::id(),
-            'schedule_id' => $schedule->id,
-            'booking_code' => 'TRV-' . time(),
-            
-            // Data Pemesan Baru
-            'booker_name' => $request->booker_name,
-            'phone_number' => $request->phone_number,
-            'pickup_address' => $request->pickup_address,
-            
-            // Data Rute
-            'custom_origin' => $request->custom_origin,
-            'custom_destination' => $request->custom_destination,
-            
-           
-            'total_price' => $finalPrice, 
-            
-            'payment_status' => 'pending'
-        ]);
+                'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                'schedule_id' => $schedule->id,
+                'booking_code' => 'TRV-' . time(),
+                
+                // Data Pemesan 
+                'booker_name' => $request->booker_name,
+                'phone_number' => $request->phone_number,
+                'pickup_address' => $request->pickup_address,
+                
+                // Data Rute & Waktu
+                'custom_origin' => $request->custom_origin,
+                'custom_destination' => $request->custom_destination,
+                'custom_departure_time' => $request->custom_departure_time,
+                'custom_arrival_time' => $request->custom_arrival_time,
+                
+                // Harga Final yang diamankan
+                'total_price' => $finalPrice, 
+                
+                'payment_status' => 'pending'
+            ]);
 
-        // UBAH STATUS KETERSEDIAAN ARMADA MENJADI "FALSE" (DISEWA)
-        $schedule->update([
-            'is_available' => false
-        ]);
+            // Kunci unit armada agar langsung berubah menjadi "Disewa/Tidak Tersedia"
+            $schedule->update([
+                'is_available' => false
+            ]);
 
-        // Kunci unit armada agar langsung berubah menjadi "Disewa/Tidak Tersedia" di halaman user
-        $schedule->update([
-            'is_available' => false
-        ]);
-
-        return redirect()->route('riwayat')->with('success', 'Pesanan berhasil dibuat! Silakan lakukan pembayaran.');
-    }
+            return redirect()->route('riwayat')->with('success', 'Pesanan berhasil dibuat! Silakan lakukan pembayaran.');
+        }
 
     public function pay($id)
     {
@@ -202,5 +206,19 @@ class BookingController extends Controller
         } 
 
         return redirect()->route('riwayat')->with('error', 'Pesanan ini tidak dapat dibatalkan.');
+    }
+
+        public function downloadReceipt($id)
+    {
+        $booking = \App\Models\Booking::with(['schedule.shuttle', 'user'])->findOrFail($id);
+
+        if ($booking->payment_status !== 'paid') {
+            return back()->with('error', 'Kwitansi belum bisa dicetak karena pembayaran belum lunas.');
+        }
+
+        $pdf = Pdf::loadView('pdf.receipt', compact('booking'));
+        $pdf->setPaper('A5', 'landscape');
+
+        return $pdf->download('Kwitansi_VikensaTrans_' . $booking->booking_code . '.pdf');
     }
 }
