@@ -270,13 +270,10 @@
                     @forelse($schedules as $schedule)
                         @php
                             $firstPhoto = $schedule->shuttle->photos->first();
-                            $vehicleImage = $firstPhoto ? asset('storage/' . $firstPhoto->photo_path) : 'images/v01.jpeg';
+                            $vehicleImage = $firstPhoto ? asset('storage/' . $firstPhoto->photo_path) : asset('images/v01.jpeg');
                         @endphp
 
-                        <article class="dashboard-card flex flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm" x-data="{ showGallery: false }">
-                            
-                            {{-- FOTO UTAMA --}}
-                            <div class="relative h-[240px] shrink-0 overflow-hidden bg-slate-200 sm:h-[280px]">
+                                <article class="dashboard-card relative flex flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm transition-all duration-300" :class="showGallery ? '!transform-none !shadow-sm pointer-events-auto' : ''" x-data="{ showGallery: false }">                            <div class="relative h-[240px] shrink-0 overflow-hidden bg-slate-200 sm:h-[280px]">
                                 <img src="{{ $vehicleImage }}" alt="{{ $schedule->shuttle->name ?? 'Armada' }}" class="vehicle-image h-full w-full object-cover">
                                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/5 to-transparent"></div>
                                 
@@ -371,35 +368,64 @@
                                     @endif
                                 </div>
 
-                                {{-- MODAL GALERI FOTO --}}
-                                <div x-show="showGallery" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 p-4 backdrop-blur-sm" x-transition>
-                                    <div @click.outside="showGallery = false" class="flex w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-white p-6 shadow-2xl sm:max-h-[90vh]">
-                                        <div class="mb-4 flex shrink-0 items-center justify-between border-b border-slate-100 pb-4">
-                                            <div>
-                                                <h3 class="text-xl font-black text-slate-800">Galeri Foto Unit</h3>
-                                                <p class="text-sm text-slate-500">{{ $schedule->shuttle->name ?? 'Armada' }} — {{ $schedule->shuttle->license_plate ?? '-' }}</p>
+                            </div>
+
+                            {{-- MODAL GALERI FOTO (DIBUNGKUS DALAM CONTAINER FIXED AGAR MUNCUL FULL SCREEN DI ATAS LAYAR) --}}
+                            <div x-show="showGallery" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 p-4 backdrop-blur-sm" x-transition>
+                                <div @click.outside="showGallery = false" class="flex w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-white p-6 shadow-2xl sm:max-h-[90vh]">
+                                    <div class="mb-4 flex shrink-0 items-center justify-between border-b border-slate-100 pb-4">
+                                        <div>
+                                            <h3 class="text-xl font-black text-slate-800">Galeri Foto Unit</h3>
+                                            <p class="text-sm text-slate-500">{{ $schedule->shuttle->name ?? 'Armada' }} — {{ $schedule->shuttle->license_plate ?? '-' }}</p>
+                                        </div>
+                                        <button @click="showGallery = false" type="button" class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-500 transition hover:bg-red-100 hover:text-red-500">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 gap-4 overflow-y-auto p-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                                        @forelse($schedule->shuttle->photos ?? [] as $photo)
+                                            <div class="group relative aspect-square overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+                                                <img src="{{ asset('storage/' . $photo->photo_path) }}" alt="Foto {{ $schedule->shuttle->name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-110">
                                             </div>
-                                            <button @click="showGallery = false" type="button" class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-500 transition hover:bg-red-100 hover:text-red-500">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5"><path d="M18 6L6 18M6 6l12 12"></path></svg>
-                                            </button>
-                                        </div>
-                                        
-                                        <div class="grid grid-cols-1 gap-4 overflow-y-auto p-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                                            @forelse($schedule->shuttle->photos ?? [] as $photo)
-                                                <div class="group relative aspect-square overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
-                                                    <img src="{{ asset('storage/' . $photo->photo_path) }}" alt="Foto {{ $schedule->shuttle->name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-110">
-                                                </div>
-                                            @empty
-                                                <div class="col-span-full rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-12 text-center">
-                                                    <p class="font-bold text-slate-400">Belum ada foto yang diunggah untuk unit ini.</p>
-                                                </div>
-                                            @endforelse
-                                        </div>
+                                        @empty
+                                            <div class="col-span-full rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-12 text-center">
+                                                <p class="font-bold text-slate-400">Belum ada foto yang diunggah untuk unit ini.</p>
+                                            </div>
+                                        @endforelse
                                     </div>
                                 </div>
-
                             </div>
+
                         </article>
+
+                        {{-- MODAL GALERI FOTO (DIPINDAH KELUAR DI BAWAH ARTICLE AGAR MUNCUL FULL SCREEN DENGAN MULUS) --}}
+                        <div x-show="showGallery" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 p-4 backdrop-blur-sm" x-transition>
+                            <div @click.outside="showGallery = false" class="flex w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-white p-6 shadow-2xl sm:max-h-[90vh]">
+                                <div class="mb-4 flex shrink-0 items-center justify-between border-b border-slate-100 pb-4">
+                                    <div>
+                                        <h3 class="text-xl font-black text-slate-800">Galeri Foto Unit</h3>
+                                        <p class="text-sm text-slate-500">{{ $schedule->shuttle->name ?? 'Armada' }} — {{ $schedule->shuttle->license_plate ?? '-' }}</p>
+                                    </div>
+                                    <button @click="showGallery = false" type="button" class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-500 transition hover:bg-red-100 hover:text-red-500">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                                    </button>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 gap-4 overflow-y-auto p-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                                    @forelse($schedule->shuttle->photos ?? [] as $photo)
+                                        <div class="group relative aspect-square overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+                                            <img src="{{ asset('storage/' . $photo->photo_path) }}" alt="Foto {{ $schedule->shuttle->name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-110">
+                                        </div>
+                                    @empty
+                                        <div class="col-span-full rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-12 text-center">
+                                            <p class="font-bold text-slate-400">Belum ada foto yang diunggah untuk unit ini.</p>
+                                        </div>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+
                     @empty
                         <div class="col-span-full rounded-[2rem] border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
                             <h3 class="text-xl font-black text-slate-950">Armada belum tersedia</h3>
