@@ -29,15 +29,16 @@ class ServiceLogController extends Controller
     }
 
     // 3. Menyimpan data servis ke database
-   public function store(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'shuttle_id' => 'required|exists:shuttles,id',
+            'km_awal' => 'required|numeric|min:0', // <--- TAMBAHKAN BARIS INI
             'kendala' => 'required|string',
             'kerusakan' => 'required|string',
             'suku_cadang' => 'required|string',
             'estimasi_waktu' => 'required|string',
-            'estimasi_harga' => 'required|string', // <--- TAMBAHKAN BARIS INI
+            'estimasi_harga' => 'required|string',
         ]);
 
         ServiceLog::create($request->all());
@@ -69,6 +70,7 @@ class ServiceLogController extends Controller
     {
         $request->validate([
             'shuttle_id' => 'required|exists:shuttles,id',
+            'km_awal' => 'required|numeric|min:0', // <--- TAMBAHKAN BARIS INI
             'kendala' => 'required|string',
             'kerusakan' => 'required|string',
             'suku_cadang' => 'required|string',

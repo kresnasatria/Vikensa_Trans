@@ -1385,6 +1385,33 @@
 
                             </div>
 
+                            {{-- ================================================= --}}
+                            {{-- KM AWAL --}}
+                            {{-- ================================================= --}}
+                            <div>
+                                <label for="km_awal" class="block text-sm font-bold text-slate-700">
+                                    Kilometer Awal (KM) <span class="text-red-500">*</span>
+                                </label>
+
+                                <p class="mt-1 text-xs text-slate-400">
+                                    Angka odometer kendaraan saat masuk bengkel.
+                                </p>
+
+                                <input
+                                    id="km_awal"
+                                    type="number"
+                                    name="km_awal"
+                                    value="{{ old('km_awal') }}"
+                                    required
+                                    placeholder="Contoh: 85000"
+                                    class="mt-3 h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700 outline-none transition placeholder:font-normal placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10"
+                                >
+
+                                @error('km_awal')
+                                    <p class="mt-2 text-xs font-semibold text-red-500">{{ $message }}</p>
+                                @enderror
+                            </div>
+
 
 
                             {{-- ================================================= --}}
