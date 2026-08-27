@@ -184,7 +184,7 @@
             @endif
 
             {{-- FORM --}}
-            <form action="{{ route('admin.store') }}" method="POST" class="mt-8">
+            <form action="{{ route('admin.store') }}" method="POST" enctype="multipart/form-data" class="mt-8">
                 @csrf
                 <div class="grid gap-7 lg:grid-cols-[1fr_340px]">
 
@@ -202,6 +202,8 @@
                                     <p class="mt-1 text-xs text-slate-400">Data kendaraan yang akan ditambahkan.</p>
                                 </div>
                             </div>
+                            
+                            {{-- PEMBUNGKUS GRID DENGAN PADDING (p-6 sm:p-7) --}}
                             <div class="grid gap-5 p-6 sm:p-7 md:grid-cols-2">
                                 <div class="md:col-span-2">
                                     <label for="shuttle_name" class="block text-sm font-bold text-slate-700">Nama Armada <span class="text-red-500">*</span></label>
@@ -240,7 +242,54 @@
                                     </div>
                                     @error('seat_capacity') <p class="mt-2 text-xs font-semibold text-red-500">{{ $message }}</p> @enderror
                                 </div>
-                            </div>
+
+                            {{-- ========================================== --}}
+                                {{-- UPLOAD FOTO (DENGAN PREVIEW & HAPUS) --}}
+                                {{-- ========================================== --}}
+                                <div class="md:col-span-2 mt-4 pt-6 border-t border-slate-100" x-data="fileUpload()">
+                                    <div class="flex items-end justify-between gap-4">
+                                        <div>
+                                            <label class="block text-sm font-bold text-slate-700">Foto Kendaraan (Maks 8 Foto)</label>
+                                            <p class="mt-1 text-xs text-slate-400">Pilih hingga 8 foto interior dan eksterior sekaligus (Format: JPG, PNG).</p>
+                                        </div>
+                                        
+                                        {{-- Tombol Custom Pilih Foto --}}
+                                        <div>
+                                            <input type="file" id="photoInput" name="photos[]" multiple accept="image/*" @change="handleFileSelect" class="hidden">
+                                            <label for="photoInput" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-50 text-sky-600 font-bold text-sm cursor-pointer hover:bg-sky-100 transition ring-1 ring-inset ring-sky-200/50 shadow-sm">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><path d="M12 5v14M5 12h14"/></svg>
+                                                Tambah Foto
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {{-- Area Preview Gambar --}}
+                                    <div class="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4" x-show="files.length > 0" x-cloak>
+                                        <template x-for="(item, index) in files" :key="index">
+                                            <div class="group relative aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+                                                {{-- Gambar Preview --}}
+                                                <img :src="item.url" class="w-full h-full object-cover">
+                                                
+                                                {{-- Overlay Gelap saat di-hover --}}
+                                                <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition duration-300"></div>
+                                                
+                                                {{-- Tombol X (Hapus) --}}
+                                                <button type="button" @click="removeFile(index)" title="Hapus foto ini" class="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-white opacity-0 scale-90 group-hover:scale-100 group-hover:opacity-100 transition duration-300 hover:bg-red-600 shadow-md">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-4 h-4"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                                </button>
+                                                
+                                                {{-- Nama File --}}
+                                                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900/90 to-transparent p-2 pt-6 opacity-0 translate-y-2 group-hover:translate-y-0 group-hover:opacity-100 transition duration-300">
+                                                    <p class="text-[10px] font-semibold text-slate-200 truncate w-full text-center" x-text="item.name"></p>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    @error('photos') <p class="mt-2 text-xs font-semibold text-red-500">{{ $message }}</p> @enderror
+                                    @error('photos.*') <p class="mt-2 text-xs font-semibold text-red-500">{{ $message }}</p> @enderror
+                                </div>
+                                {{-- ========================================== --}}
                         </section>
 
                         {{-- PRICE & STATUS --}}
@@ -350,6 +399,46 @@
         </div>
     </main>
 </div>
+
+<script>
+    function fileUpload() {
+        return {
+            files: [],
+            handleFileSelect(event) {
+                const selectedFiles = Array.from(event.target.files);
+                
+                // Mencegah user upload lebih dari 8 file sekaligus
+                if (this.files.length + selectedFiles.length > 8) {
+                    alert('Maksimal hanya boleh mengunggah 8 foto!');
+                    // Reset input jika berlebih agar tidak terjadi error
+                    event.target.value = ''; 
+                    return;
+                }
+                
+                selectedFiles.forEach(file => {
+                    this.files.push({
+                        file: file,
+                        url: URL.createObjectURL(file), // Membuat URL sementara untuk preview
+                        name: file.name
+                    });
+                });
+                
+                this.updateInput();
+            },
+            removeFile(index) {
+                URL.revokeObjectURL(this.files[index].url); // Membersihkan memori browser
+                this.files.splice(index, 1); // Menghapus dari layar
+                this.updateInput(); // Mengirim ulang data ke form Laravel
+            },
+            updateInput() {
+                // Trik ajaib untuk memasukkan kembali file yang tersisa ke dalam form input Laravel
+                const dataTransfer = new DataTransfer();
+                this.files.forEach(f => dataTransfer.items.add(f.file));
+                document.getElementById('photoInput').files = dataTransfer.files;
+            }
+        }
+    }
+</script>
 
 </body>
 </html>

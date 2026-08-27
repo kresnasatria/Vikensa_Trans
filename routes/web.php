@@ -70,7 +70,11 @@ Route::middleware(['auth', \App\Http\Middleware\IsAdmin::class])->prefix('admin'
     // Rute untuk menandai pesanan sudah dibaca
     Route::post('/orders/mark-read', [OrderController::class, 'markAsRead'])->name('orders.markRead');
 
-    // --- INI BARIS BARU (Rute untuk Catatan Servis Kendaraan) ---
+    // --- Rute untuk Catatan Servis Kendaraan ---
     Route::resource('services', ServiceLogController::class);
+
+    // --- Rute untuk menghapus foto armada 
+    Route::delete('/photos/{id}', [AdminController::class, 'destroyPhoto'])->name('photos.destroy');
+   
 
 });
