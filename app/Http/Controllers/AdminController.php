@@ -26,13 +26,11 @@ class AdminController extends Controller
     }
 
     // Menyimpan SEMUA perubahan ke database
-    public function update(Request $request, $id)
+   public function update(Request $request, $id)
     {
-        // 1. Ambil data Schedule berdasarkan ID dari URL, lalu ambil relasi Shuttle-nya
         $schedule = \App\Models\Schedule::findOrFail($id);
         $shuttle = $schedule->shuttle;
 
-        // 2. Validasi dengan menggunakan ID Shuttle yang valid ($shuttle->id)
         $request->validate([
             'shuttle_name' => 'required|string|max:255',
             'license_plate' => 'required|string|max:20|unique:shuttles,license_plate,' . $shuttle->id,
@@ -40,17 +38,31 @@ class AdminController extends Controller
             'price' => 'required|numeric',
             'is_available' => 'required|boolean',
             'photos' => 'nullable|array|max:8',
-            'photos.*' => 'image|mimes:jpeg,png,jpg|max:2048'
+            'photos.*' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'delete_photos' => 'nullable|array' // Menampung ID foto yang ingin dihapus
         ]);
         
-        // 3. Update data teks shuttle yang benar
+        // 1. Update data teks shuttle
         $shuttle->update([
             'name' => $request->shuttle_name,
             'license_plate' => strtoupper($request->license_plate),
             'seat_capacity' => $request->seat_capacity,
         ]);
 
-        // 4. Jika ada foto baru yang di-upload, tambahkan ke database
+        // 2. Hapus foto lama jika ada yang dicentang/dipilih untuk dihapus
+        if ($request->has('delete_photos')) {
+            $photosToDelete = \App\Models\ShuttlePhoto::whereIn('id', $request->delete_photos)
+                                ->where('shuttle_id', $shuttle->id)
+                                ->get();
+            foreach ($photosToDelete as $photo) {
+                if (\Storage::disk('public')->exists($photo->photo_path)) {
+                    \Storage::disk('public')->delete($photo->photo_path);
+                }
+                $photo->delete();
+            }
+        }
+
+        // 3. Jika ada foto baru yang di-upload, tambahkan ke database
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $photo) {
                 $path = $photo->store('shuttles', 'public');
@@ -61,13 +73,13 @@ class AdminController extends Controller
             }
         }
 
-        // 5. Update tabel schedule (harga & status)
+        // 4. Update tabel schedule (harga & status)
         $schedule->update([
             'price' => $request->price,
             'is_available' => $request->is_available
         ]);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Data armada dan foto berhasil diperbarui!');
+        return redirect()->route('admin.dashboard')->with('success', 'Data armada dan galeri foto berhasil diperbarui!');
     }
 
     // Menghapus data dari database secara menyeluruh

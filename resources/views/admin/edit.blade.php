@@ -92,16 +92,38 @@
                                 </div>
                             </section>
 
-                            {{-- KELOLA FOTO LAMA (DENGAN TOMBOL HAPUS LANGSUNG DI ATAS GAMBAR) --}}
-                            <section class="form-card overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 sm:p-7">
+                            {{-- KELOLA FOTO LAMA (DENGAN TOMBOL X MERAH) --}}
+                            <section class="form-card overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 sm:p-7" x-data="{ deletedPhotos: [] }">
                                 <h2 class="text-lg font-black text-slate-950 mb-1">Galeri Foto Tersimpan</h2>
-                                <p class="text-xs text-slate-400 mb-5">Arahkan kursor ke foto lalu klik tombol silang merah untuk menghapusnya.</p>
+                                <p class="text-xs text-slate-400 mb-5">Arahkan kursor ke foto lalu klik tombol silang merah untuk menghapusnya saat disimpan.</p>
 
                                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                     @forelse($schedule->shuttle->photos ?? [] as $photo)
-                                        <div class="group relative aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+                                        <div class="group relative aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm transition duration-300"
+                                             :class="deletedPhotos.includes('{{ $photo->id }}') ? 'opacity-30 scale-95 border-red-300' : ''">
+                                            
                                             <img src="{{ asset('storage/' . $photo->photo_path) }}" class="w-full h-full object-cover">
-                                            <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition duration-300"></div>
+                                            
+                                            {{-- Overlay gelap saat di-hover --}}
+                                            <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition duration-300" x-show="!deletedPhotos.includes('{{ $photo->id }}')"></div>
+                                            
+                                            {{-- Input checkbox tersembunyi yang dikontrol oleh Alpine.js --}}
+                                            <input type="checkbox" name="delete_photos[]" value="{{ $photo->id }}" class="hidden" :checked="deletedPhotos.includes('{{ $photo->id }}')">
+
+                                            {{-- Tombol X Merah --}}
+                                            <button type="button" 
+                                                    @click="if(deletedPhotos.includes('{{ $photo->id }}')) { deletedPhotos = deletedPhotos.filter(id => id !== '{{ $photo->id }}') } else { deletedPhotos.push('{{ $photo->id }}') }"
+                                                    class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full text-white shadow-md transition duration-300 z-10"
+                                                    :class="deletedPhotos.includes('{{ $photo->id }}') ? 'bg-slate-700 hover:bg-slate-800' : 'bg-red-500 opacity-0 group-hover:opacity-100 hover:bg-red-600'">
+                                                
+                                                <svg x-show="!deletedPhotos.includes('{{ $photo->id }}')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-4 h-4"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                                <svg x-show="deletedPhotos.includes('{{ $photo->id }}')" x-cloak viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-4 h-4"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                                            </button>
+
+                                            {{-- Label kecil penanda jika foto ditandai hapus --}}
+                                            <div class="absolute inset-x-0 bottom-0 bg-red-600/90 py-1 text-center text-[10px] font-bold text-white shadow" x-show="deletedPhotos.includes('{{ $photo->id }}')" x-cloak>
+                                                Akan Dihapus
+                                            </div>
                                         </div>
                                     @empty
                                         <div class="col-span-full rounded-xl bg-slate-50 p-6 text-center text-xs text-slate-400 border border-dashed border-slate-200">
