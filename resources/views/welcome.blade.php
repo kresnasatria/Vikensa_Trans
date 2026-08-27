@@ -32,11 +32,20 @@
 
         .shadow-soft { box-shadow: 0 24px 80px rgba(15, 23, 42, .10); }
 
-        .fleet-card { transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; }
-        .fleet-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 30px 70px rgba(15, 23, 42, .12);
+        .dashboard-card {
+            transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 24px 60px rgba(15, 23, 42, .08);
             border-color: rgba(14, 165, 233, .25);
+        }
+
+        .vehicle-image {
+            transition: transform .5s ease;
+        }
+        .dashboard-card:hover .vehicle-image {
+            transform: scale(1.035);
         }
 
         ::selection { background: #0ea5e9; color: white; }
@@ -184,7 +193,7 @@
 </section>
 
 {{-- ========================================================= --}}
-{{-- ARMADA (DINAMIS DARI DATABASE) --}}
+{{-- ARMADA (DISERAGAMKAN DENGAN DASHBOARD USER) --}}
 {{-- ========================================================= --}}
 <section id="armada" class="py-24 sm:py-28">
     <div class="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
@@ -200,85 +209,147 @@
             </p>
         </div>
 
-        <div class="mx-auto mt-14 grid max-w-6xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
-            
+        <div class="mx-auto mt-14 grid max-w-6xl grid-cols-1 gap-7 xl:grid-cols-2">
             @forelse($schedules as $schedule)
                 @php
-                    // Logika sederhana agar gambar berbeda tiap unit
-                    $img = $loop->iteration == 1 ? 'v01.jpeg' : ($loop->iteration == 2 ? 'v02.jpeg' : 'wuling.PNG');
+                    $firstPhoto = $schedule->shuttle->photos->first();
+                    $vehicleImage = $firstPhoto ? asset('storage/' . $firstPhoto->photo_path) : asset('images/v01.jpeg');
                 @endphp
 
-                <article class="fleet-card flex h-full flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-4">
+                <article class="dashboard-card relative flex flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm transition-all duration-300" :class="showGallery ? '!transform-none !shadow-sm pointer-events-auto' : ''" x-data="{ showGallery: false }">
                     
-                    {{-- GAMBAR MOBIL --}}
-                    <div class="relative overflow-hidden rounded-[1.6rem] bg-gradient-to-br from-sky-50 via-white to-slate-100 px-6 py-10">
-                        <div class="absolute left-5 top-5 z-10 flex items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm">
-                            <span class="h-2 w-2 rounded-full {{ $schedule->is_available ? 'bg-emerald-500' : 'bg-red-500' }}"></span>
+                    {{-- FOTO UTAMA --}}
+                    <div class="relative h-[240px] shrink-0 overflow-hidden bg-slate-200 sm:h-[280px]">
+                        <img src="{{ $vehicleImage }}" alt="{{ $schedule->shuttle->name ?? 'Armada' }}" class="vehicle-image h-full w-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/5 to-transparent"></div>
+                        
+                        <div class="absolute left-5 top-5 rounded-full bg-white/95 px-4 py-2 text-xs font-black text-slate-800 shadow-lg">
                             Unit {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
                         </div>
-                        <div class="mt-5 w-full">
-                            <div class="h-44 w-full overflow-hidden rounded-[1rem] sm:h-56 lg:h-64">
-                                <img src="{{ asset('images/' . $img) }}" alt="{{ $schedule->shuttle->name ?? 'Armada' }}" class="h-full w-full object-cover" />
+
+                        @if($schedule->is_available)
+                            <div class="absolute right-5 top-5 inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-xs font-black text-white shadow-lg">
+                                <span class="h-2 w-2 rounded-full bg-white"></span>Tersedia
                             </div>
+                        @else
+                            <div class="absolute right-5 top-5 inline-flex items-center gap-2 rounded-full bg-red-500 px-4 py-2 text-xs font-black text-white shadow-lg">
+                                <span class="h-2 w-2 rounded-full bg-white"></span>Disewa
+                            </div>
+                        @endif
+
+                        <div class="absolute bottom-5 left-5 right-5">
+                            <p class="text-xs font-bold uppercase tracking-[.15em] text-sky-300">VikensaTrans</p>
+                            <h3 class="mt-1 text-2xl font-black text-white">{{ $schedule->shuttle->name ?? 'Armada' }}</h3>
                         </div>
                     </div>
 
-                    {{-- KONTEN TEKS --}}
-                    <div class="flex flex-1 flex-col p-4 pb-3 pt-6">
-                        <div class="flex items-start justify-between gap-4">
+                    {{-- CARD CONTENT --}}
+                    <div class="flex flex-1 flex-col p-6 sm:p-7">
+                        
+                        {{-- HARGA & PLAT --}}
+                        <div class="flex items-start justify-between gap-4 border-b border-slate-100 pb-5">
                             <div>
-                                <p class="text-sm font-semibold text-sky-600">VikensaTrans Unit {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</p>
-                                <h3 class="mt-1 text-2xl font-black">{{ $schedule->shuttle->name ?? 'Armada Charter' }}</h3>
+                                <p class="text-xs font-semibold text-slate-400">Harga Dasar</p>
+                                <p class="mt-1 text-2xl font-black text-sky-600">Rp {{ number_format($schedule->price, 0, ',', '.') }}</p>
+                                <p class="mt-1 text-xs text-slate-400">Sewa satu unit</p>
+                            </div>
+                            <div class="rounded-2xl bg-slate-50 px-4 py-3 text-right">
+                                <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Plat Nomor</p>
+                                <p class="mt-1 text-sm font-black text-slate-900">{{ $schedule->shuttle->license_plate ?? '-' }}</p>
+                            </div>
+                        </div>
+
+                        {{-- DESKRIPSI OTOMATIS --}}
+                        <div class="mt-5">
+                            <p class="text-sm leading-6 text-slate-500">
+                                Armada <span class="font-bold text-slate-700">{{ $schedule->shuttle->name }}</span> ini memiliki kapasitas maksimal <span class="font-bold text-slate-700">{{ $schedule->shuttle->seat_capacity }} orang penumpang</span>. Kendaraan ini sangat cocok dan nyaman untuk menemani perjalanan Anda dengan rute fleksibel yang bisa ditentukan sendiri.
+                            </p>
+                        </div>
+
+                        {{-- INFORMASI DETAIL KARTU --}}
+                        <div class="mt-6 grid gap-3 sm:grid-cols-2">
+                            <div class="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
+                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-sky-600 shadow-sm">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 20c0-4 2-7 6-7s6 3 6 7"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Kapasitas</p>
+                                    <p class="mt-1 text-sm font-black text-slate-900">{{ $schedule->shuttle->seat_capacity ?? '-' }} Penumpang</p>
+                                </div>
                             </div>
 
-                            {{-- BADGE STATUS DINAMIS --}}
+                            <div class="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
+                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-sky-600 shadow-sm">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5"><path d="M12 22s7-5 7-12a7 7 0 1 0-14 0c0 7 7 12 7 12Z"/><circle cx="12" cy="10" r="2"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Rute</p>
+                                    <p class="mt-1 text-sm font-black text-slate-900">Fleksibel</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- TOMBOL LIHAT FOTO LENGKAP --}}
+                        <div class="mt-4">
+                            <button @click="showGallery = true" type="button" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-sky-50 px-5 py-3 text-sm font-bold text-sky-600 transition hover:bg-sky-100">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                                Lihat Foto Unit ({{ $schedule->shuttle->photos->count() }} Foto)
+                            </button>
+                        </div>
+
+                        {{-- SPACER --}}
+                        <div class="mt-auto pt-6"></div>
+
+                        {{-- TOMBOL PESAN / PILIH --}}
+                        <div>
                             @if($schedule->is_available)
-                                <div class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600">
-                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Tersedia
-                                </div>
+                                @auth
+                                    <a href="{{ route('dashboard') }}" class="group flex w-full items-center justify-center gap-3 rounded-2xl bg-slate-950 px-6 py-4 text-sm font-black text-white shadow-xl shadow-slate-900/10 transition hover:-translate-y-0.5 hover:bg-sky-600">
+                                        Pilih Armada
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5 transition group-hover:translate-x-1"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                                    </a>
+                                @else
+                                    <a href="{{ route('login') }}" class="group flex w-full items-center justify-center gap-3 rounded-2xl bg-slate-950 px-6 py-4 text-sm font-black text-white shadow-xl shadow-slate-900/10 transition hover:-translate-y-0.5 hover:bg-sky-600">
+                                        Pesan Sekarang
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5 transition group-hover:translate-x-1"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                                    </a>
+                                @endauth
                             @else
-                                <div class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-500">
-                                    <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span> Disewa
-                                </div>
+                                <button type="button" disabled class="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-2xl bg-slate-100 px-6 py-4 text-sm font-black text-slate-400">
+                                    Unit Sedang Disewa
+                                </button>
                             @endif
                         </div>
 
-                        {{-- INFO KAPASITAS & HARGA --}}
-                        <div class="mt-6 grid grid-cols-2 gap-3">
-                            <div class="rounded-xl bg-slate-50 p-4">
-                                <p class="text-xs font-medium text-slate-500">Kapasitas</p>
-                                <p class="mt-1 font-bold text-slate-900">{{ $schedule->shuttle->seat_capacity ?? '-' }} Penumpang</p>
-                            </div>
-                            <div class="rounded-xl bg-slate-50 p-4">
-                                <p class="text-xs font-medium text-slate-500">Harga Dasar</p>
-                                <p class="mt-1 font-bold text-slate-900">Rp {{ number_format($schedule->price, 0, ',', '.') }}</p>
-                            </div>
-                        </div>
-
-                        {{-- FASILITAS (STATIS) --}}
-                        <div class="mb-6 mt-3 flex flex-nowrap gap-2 overflow-x-auto">
-                            <span class="rounded-lg bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-700">✓ Nyaman</span>
-                            <span class="rounded-lg bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-700">✓ Rombongan</span>
-                        </div>
-
-                        {{-- TOMBOL AKSI DINAMIS --}}
-                        @if($schedule->is_available)
-                            @auth
-                                <a href="{{ route('dashboard') }}" class="group mt-auto flex items-center justify-between rounded-xl bg-slate-950 px-5 py-4 font-bold text-white transition hover:bg-sky-600">
-                                    Pilih Armada <span class="transition group-hover:translate-x-1">→</span>
-                                </a>
-                            @else
-                                <a href="{{ route('login') }}" class="group mt-auto flex items-center justify-between rounded-xl bg-slate-950 px-5 py-4 font-bold text-white transition hover:bg-sky-600">
-                                    Pesan Sekarang <span class="transition group-hover:translate-x-1">→</span>
-                                </a>
-                            @endauth
-                        @else
-                            <button disabled class="mt-auto flex w-full cursor-not-allowed items-center justify-center rounded-xl bg-slate-100 px-5 py-4 font-bold text-slate-400">
-                                Unit Sedang Disewa
-                            </button>
-                        @endif
-
                     </div>
+
+                    {{-- MODAL GALERI FOTO --}}
+                    <div x-show="showGallery" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 p-4 backdrop-blur-sm" x-transition>
+                        <div @click.outside="showGallery = false" class="flex w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-white p-6 shadow-2xl sm:max-h-[90vh]">
+                            <div class="mb-4 flex shrink-0 items-center justify-between border-b border-slate-100 pb-4">
+                                <div>
+                                    <h3 class="text-xl font-black text-slate-800">Galeri Foto Unit</h3>
+                                    <p class="text-sm text-slate-500">{{ $schedule->shuttle->name ?? 'Armada' }} — {{ $schedule->shuttle->license_plate ?? '-' }}</p>
+                                </div>
+                                <button @click="showGallery = false" type="button" class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-500 transition hover:bg-red-100 hover:text-red-500">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 gap-4 overflow-y-auto p-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                                @forelse($schedule->shuttle->photos ?? [] as $photo)
+                                    <div class="group relative aspect-square overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+                                        <img src="{{ asset('storage/' . $photo->photo_path) }}" alt="Foto {{ $schedule->shuttle->name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-110">
+                                    </div>
+                                @empty
+                                    <div class="col-span-full rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-12 text-center">
+                                        <p class="font-bold text-slate-400">Belum ada foto yang diunggah untuk unit ini.</p>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
                 </article>
             @empty
                 <div class="col-span-full py-10 text-center">
@@ -521,7 +592,7 @@
                     </div>
                 </button>
                 <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="border-t border-slate-200 px-6 py-6 text-sm leading-7 text-slate-600 sm:px-7">
-                    VikensaTrans menyediakan beberapa pilihan armada, seperti Toyota Hiace, Isuzu Elf, dan Mercedes Sprinter. Ketersediaan aktual mengikuti data pada sistem.
+                    VikensaTrans menyediakan beberapa pilihan armada berkualitas. Ketersediaan aktual dan fasilitasnya dapat dilihat langsung pada galeri foto masing-masing unit.
                 </div>
             </div>
 
