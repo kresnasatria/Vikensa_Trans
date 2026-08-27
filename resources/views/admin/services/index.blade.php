@@ -1577,6 +1577,22 @@
                                     Armada
                                 </th>
 
+                                <th
+                                    class="
+                                        px-5
+                                        py-4
+
+                                        text-left
+                                        text-[10px]
+                                        font-black
+                                        uppercase
+                                        tracking-wider
+                                        text-slate-400
+                                    "
+                                >
+                                    KM Awal
+                                </th>
+
 
                                 <th
                                     class="
@@ -1813,6 +1829,38 @@
                                             }}
                                         </p>
 
+                                    </td>
+
+                                    {{-- KM AWAL --}}
+                                    <td
+                                        class="
+                                            px-5
+                                            py-5
+
+                                            align-top
+                                        "
+                                    >
+                                        <p
+                                            class="
+                                                text-sm
+                                                font-black
+                                                text-slate-700
+                                            "
+                                        >
+                                            {{ number_format($service->km_awal, 0, ',', '.') }}
+                                        </p>
+                                        <p
+                                            class="
+                                                mt-1
+
+                                                text-[11px]
+                                                font-semibold
+                                                uppercase
+                                                text-slate-400
+                                            "
+                                        >
+                                            KM
+                                        </p>
                                     </td>
 
 
@@ -2235,6 +2283,7 @@
                                 trim(
                                     ($service->shuttle?->name ?? '') . ' ' .
                                     ($service->shuttle?->license_plate ?? '') . ' ' .
+                                    ($service->km_awal ?? '') . ' ' .
                                     ($service->kendala ?? '') . ' ' .
                                     ($service->kerusakan ?? '') . ' ' .
                                     ($service->suku_cadang ?? '') . ' ' .
@@ -2318,8 +2367,10 @@
                                             $service
                                                 ->shuttle
                                                 ?->license_plate
-                                            ?? '-'
+                                        ?? '-'
                                         }}
+                                        &bull; 
+                                        {{ number_format($service->km_awal, 0, ',', '.') }} KM
                                     </p>
 
                                 </div>

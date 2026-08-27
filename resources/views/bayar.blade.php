@@ -28,7 +28,7 @@
                             <div class="col-span-1 md:col-span-2 mt-2 pt-4 border-t border-gray-200">
                                 <p class="text-xs text-gray-500 uppercase">Rute Perjalanan</p>
                                 <p class="font-bold text-gray-700 mt-1">
-                                    🚩 {{ $booking->schedule->route->origin->city }} ➔ {{ $booking->schedule->route->destination->city }}
+                                    🚩{{ $booking->custom_origin }} ➔ {{ $booking->custom_destination }}
                                 </p>
                             </div>
                         </div>
