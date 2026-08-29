@@ -7,7 +7,9 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\TripRouteController;
 use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\ServiceLogController; // <--- INI BARIS BARU (Import Controller Servis)
+use App\Http\Controllers\Admin\ServiceLogController; 
+use App\Http\Controllers\Auth\GoogleController;
+
 
 // --- AREA USER & UMUM ---
 Route::get('/booking/{id}', [BookingController::class, 'create'])->name('book.create');
@@ -75,6 +77,8 @@ Route::middleware(['auth', \App\Http\Middleware\IsAdmin::class])->prefix('admin'
 
     // --- Rute untuk menghapus foto armada 
     Route::delete('/photos/{id}', [AdminController::class, 'destroyPhoto'])->name('photos.destroy');
-   
-
 });
+
+    // --- Rute untuk Google OAuth ---
+        Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
+        Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
