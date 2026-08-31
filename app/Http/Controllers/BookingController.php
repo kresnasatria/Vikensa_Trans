@@ -82,11 +82,18 @@ class BookingController extends Controller
             $departure = \Carbon\Carbon::parse($request->custom_departure_time);
             $arrival = \Carbon\Carbon::parse($request->custom_arrival_time);
             
-            // Hitung selisih hari. Jika kembalinya di hari yang sama, hitung sebagai 1 hari.
-            $days = $departure->diffInDays($arrival);
-            $days = $days == 0 ? 1 : $days; 
+            // 1. Dapatkan selisih waktu dalam bentuk desimal (contoh: 3.00069)
+            $selisihDesimal = $departure->floatDiffInDays($arrival);
 
-            // Harga Akhir = Harga sewa per hari dikali jumlah hari
+            // 2. Bulatkan ke atas (ceil) agar kelebihan menit dihitung sebagai hari baru
+            $days = ceil($selisihDesimal);
+
+            // 3. Pastikan minimal durasi adalah 1 hari
+            if ($days < 1) {
+                $days = 1;
+            }
+
+            // 4. Harga Akhir = Harga sewa armada per hari dikali jumlah hari
             $finalPrice = $schedule->price * $days;
 
             // ====================================================================
