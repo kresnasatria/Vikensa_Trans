@@ -109,54 +109,54 @@ class AdminController extends Controller
         return view('admin.create', compact('routes'));
     }
 
-    // Menyimpan data armada baru ke database
+   // Menyimpan data armada baru ke database
     public function store(Request $request)
-        {
-            // 1. Validasi data armada, harga, status, dan FOTO
-            $request->validate([
-                'shuttle_name' => 'required|string|max:255',
-                'license_plate' => 'required|string|max:20|unique:shuttles,license_plate',
-                'seat_capacity' => 'required|integer|min:1',
-                'price' => 'required|numeric',
-                'is_available' => 'required|boolean',
+    {
+        // 1. Validasi data armada, harga, status, dan FOTO
+        $request->validate([
+            'shuttle_name' => 'required|string|max:255',
+            'license_plate' => 'required|string|max:20|unique:shuttles,license_plate',
+            'seat_capacity' => 'required|integer|min:1',
+            'price' => 'required|numeric',
+            'is_available' => 'required|boolean',
+            
+            // Validasi untuk file foto: maksimal 8 file, harus gambar, maksimal 2MB per foto
+            'photos' => 'nullable|array|max:8',
+            'photos.*' => 'image|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        // 2. Simpan Data Armada
+        $shuttle = \App\Models\Shuttle::create([
+            'name' => $request->shuttle_name,
+            'license_plate' => strtoupper($request->license_plate), 
+            'seat_capacity' => $request->seat_capacity,
+        ]);
+
+        // 2.5. Proses Upload dan Simpan Foto (JIKA ADA)
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photo) {
+                // Simpan fisik file ke folder storage/app/public/shuttles
+                $path = $photo->store('shuttles', 'public');
                 
-                // Validasi untuk file foto: maksimal 8 file, harus gambar, maksimal 2MB per foto
-                'photos' => 'nullable|array|max:8',
-                'photos.*' => 'image|mimes:jpeg,png,jpg|max:2048'
-            ]);
-
-            // 2. Simpan Data Armada
-            $shuttle = \App\Models\Shuttle::create([
-                'name' => $request->shuttle_name,
-                'license_plate' => strtoupper($request->license_plate), 
-                'seat_capacity' => $request->seat_capacity,
-            ]);
-
-            // 2.5. Proses Upload dan Simpan Foto (JIKA ADA)
-            if ($request->hasFile('photos')) {
-                foreach ($request->file('photos') as $photo) {
-                    // Simpan fisik file ke folder storage/app/public/shuttles
-                    $path = $photo->store('shuttles', 'public');
-                    
-                    // Simpan nama/jalur file ke tabel database shuttle_photos
-                    \App\Models\ShuttlePhoto::create([
-                        'shuttle_id' => $shuttle->id,
-                        'photo_path' => $path
-                    ]);
-                }
+                // Simpan nama/jalur file ke tabel database shuttle_photos
+                \App\Models\ShuttlePhoto::create([
+                    'shuttle_id' => $shuttle->id,
+                    'photo_path' => $path
+                ]);
             }
-
-            // 3. Simpan Harga Dasar & Status ke tabel Schedule dengan nilai default waktu
-            \App\Models\Schedule::create([
-                'shuttle_id' => $shuttle->id,
-                'price' => $request->price,
-                'is_available' => $request->is_available,
-                'departure_time' => now(), // Memberikan nilai tanggal & jam saat ini
-                'arrival_time' => now()    // Memberikan nilai tanggal & jam saat ini
-            ]);
-
-            return redirect()->route('admin.dashboard')->with('success', 'Armada baru beserta fotonya berhasil ditambahkan!');
         }
+
+        // 3. Simpan Harga Dasar & Status ke tabel Schedule dengan nilai default waktu
+        \App\Models\Schedule::create([
+            'shuttle_id' => $shuttle->id,
+            'price' => $request->price,
+            'is_available' => $request->is_available,
+            'departure_time' => now(), // Memberikan nilai tanggal & jam saat ini
+            'arrival_time' => now()    // Memberikan nilai tanggal & jam saat ini
+        ]);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Armada baru beserta fotonya berhasil ditambahkan!');
+    }
 
     // Mengecek pesanan baru untuk notifikasi AJAX
    public function checkNewOrders()
