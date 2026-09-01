@@ -183,9 +183,21 @@ class BookingController extends Controller
     {
         $booking = \App\Models\Booking::findOrFail($id);
         
+        // 1. Ubah status pesanan menjadi paid (lunas)
         $booking->update([
-            'payment_status' => 'paid' // Diubah dari 'lunas' menjadi 'paid'
+            'payment_status' => 'paid' 
         ]);
+
+        // ====================================================================
+        // 2. KODE BARU: Langsung ubah armada menjadi "Disewa" (Tidak Tersedia)
+        // ====================================================================
+        $schedule = \App\Models\Schedule::find($booking->schedule_id);
+        if ($schedule) {
+            $schedule->update([
+                'is_available' => false
+            ]);
+        }
+        // ====================================================================
 
         return redirect()->route('riwayat')->with('success', 'Pembayaran berhasil! Status pesanan Anda sudah Paid.');
     }
