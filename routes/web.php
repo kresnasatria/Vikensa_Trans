@@ -56,9 +56,13 @@ Route::middleware(['auth', \App\Http\Middleware\IsAdmin::class])->prefix('admin'
     Route::get('/tambah', [AdminController::class, 'create'])->name('create');
     Route::post('/simpan', [AdminController::class, 'store'])->name('store');
 
-    // Rute Manajemen Rute & Harga
+   // Rute Manajemen Rute & Harga
     Route::get('/rute', [TripRouteController::class, 'index'])->name('route.index');
     Route::post('/rute/simpan', [TripRouteController::class, 'store'])->name('route.store');
+    
+    // --- KODE BARU: Rute untuk memunculkan halaman Edit ---
+    Route::get('/rute/edit/{id}', [TripRouteController::class, 'edit'])->name('route.edit');
+    
     Route::put('/rute/update/{id}', [TripRouteController::class, 'update'])->name('route.update');
     Route::delete('/rute/hapus/{id}', [TripRouteController::class, 'destroy'])->name('route.destroy');
 
