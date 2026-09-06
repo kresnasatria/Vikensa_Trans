@@ -36,16 +36,38 @@ class TripRouteController extends Controller
         return back()->with('success', 'Rute multi-kota baru berhasil ditambahkan!');
     }
 
-    // Memperbarui harga ongkos & bensin (Update Cepat)
-    public function update(Request $request, $id)
+    // fungsi untuk menampilkan halaman form edit
+    public function edit($id)
     {
-        $route = TripRoute::findOrFail($id);
-        $route->update([
-            'route_cost' => $request->route_cost,
-            'fuel_cost' => $request->fuel_cost,
-        ]);
+        $rute = \App\Models\TripRoute::findOrFail($id);
         
-        return back()->with('success', 'Harga ongkos dan bensin berhasil diperbarui!');
+        $destinations = is_string($rute->destination) ? json_decode($rute->destination, true) : $rute->destination;
+        if (!is_array($destinations)) {
+            $destinations = [$rute->destination];
+        }
+
+        return view('admin.route_edit', compact('rute', 'destinations')); 
+    }
+
+    // Memperbarui harga ongkos & bensin (Update Cepat)
+   public function update(Request $request, $id)
+    {
+        $request->validate([
+            'origin' => 'required|string|max:255',
+            'destinations' => 'required|array',
+            'destinations.*' => 'required|string|max:255',
+            'biaya' => 'required|numeric|min:0', // Validasi biaya baru
+        ]);
+
+        $rute = \App\Models\TripRoute::findOrFail($id);
+        
+        $rute->update([
+            'origin' => $request->origin,
+            'destination' => json_encode($request->destinations),
+            'biaya' => $request->biaya, // Simpan biaya baru
+        ]);
+
+        return redirect()->route('admin.route.index')->with('success', 'Rute perjalanan dan biaya berhasil diperbarui!');
     }
 
     // Menghapus rute

@@ -1789,6 +1789,41 @@
 
                         </div>
 
+                        {{-- ================================================= --}}
+                        {{-- BIAYA RUTE --}}
+                        {{-- ================================================= --}}
+                        
+                        <div class="mt-6 border-t border-slate-100 pt-6">
+                            <label for="biaya" class="block text-sm font-bold text-slate-700">
+                                Biaya Rute (Opsional / Rahasia)
+                            </label>
+                            
+                            <p class="mt-1 text-xs text-slate-400">
+                                Nominal ini akan dikalkulasikan ke total harga saat user booking, namun detail angkanya tidak akan ditampilkan.
+                            </p>
+
+                            <div class="relative mt-3">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">
+                                    Rp
+                                </span>
+                                
+                                <input
+                                    id="biaya"
+                                    type="number"
+                                    name="biaya"
+                                    value="{{ old('biaya', 0) }}"
+                                    placeholder="Contoh: 150000"
+                                    min="0"
+                                    required
+                                    class="h-13 w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-12 pr-4 text-sm font-semibold text-slate-800 outline-none transition placeholder:font-normal placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10"
+                                >
+                            </div>
+
+                            @error('biaya')
+                                <p class="mt-2 text-xs font-semibold text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+
 
                         {{-- ================================================= --}}
                         {{-- ACTION --}}
@@ -2610,17 +2645,17 @@
                                         </div>
 
 
-                                        <p
-                                            class="
-                                                mt-2
-
-                                                text-xs
-                                                text-slate-400
-                                            "
-                                        >
-                                            Dibuat
-                                            {{ $rute->created_at->format('d M Y') }}
-                                        </p>
+                                        <div class="mt-2 flex items-center gap-2.5 text-xs">
+                                            <span class="text-slate-400">
+                                                Dibuat {{ $rute->created_at->format('d M Y') }}
+                                            </span>
+                                            
+                                            <span class="h-1 w-1 rounded-full bg-slate-300"></span>
+                                            
+                                            <span class="font-bold text-emerald-500">
+                                                Biaya: Rp {{ number_format($rute->biaya ?? 0, 0, ',', '.') }}
+                                            </span>
+                                        </div>
 
                                     </td>
 
@@ -2660,7 +2695,7 @@
                                     </td>
 
 
-                                    {{-- DELETE --}}
+                                    {{-- EDIT & DELETE --}}
 
                                     <td
                                         class="
@@ -2671,6 +2706,22 @@
                                             align-top
                                         "
                                     >
+
+                                        <div class="flex items-center justify-end gap-2">
+
+                                        {{-- TOMBOL EDIT --}}
+                                            <a 
+                                                href="{{ route('admin.route.edit', $rute->id) }}" 
+                                                title="Edit Rute"
+                                                class="inline-flex items-center justify-center h-[34px] w-[34px] rounded-lg bg-amber-50 text-amber-500 transition hover:bg-amber-500 hover:text-white"
+                                            >
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
+                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                                </svg>
+                                            </a>    
+
+                                        {{-- TOMBOL DELETE (YANG SUDAH ADA) --}}
 
                                         <form
                                             action="{{ route(

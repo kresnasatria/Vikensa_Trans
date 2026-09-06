@@ -92,9 +92,27 @@ class BookingController extends Controller
             if ($days < 1) {
                 $days = 1;
             }
+            
+            // ====================================================================
+            // KODE : Tambahkan Biaya Rute ke dalam Kalkulasi
+            // ====================================================================
+            
+            // A. Cari rute dengan mencocokkan format "Kota A → Kota B"
+            $ruteTerpilih = \App\Models\TripRoute::where('origin', $request->custom_origin)
+                ->get()
+                ->first(function($route) use ($request) {
+                    // Terjemahkan format database (JSON Array) menjadi string berpanah
+                    $destinations = is_string($route->destination) ? json_decode($route->destination, true) : $route->destination;
+                    $formattedDestination = is_array($destinations) ? implode(' → ', $destinations) : $route->destination;
+                    
+                    return $formattedDestination === $request->custom_destination;
+                });
 
-            // 4. Harga Akhir = Harga sewa armada per hari dikali jumlah hari
-            $finalPrice = $schedule->price * $days;
+            // B. Ambil biaya rute (jika tidak ditemukan atau kosong, set 0)
+            $biayaRute = $ruteTerpilih ? (int) $ruteTerpilih->biaya : 0;
+
+            // C. Harga Akhir = (Harga sewa armada per hari * jumlah hari) + Biaya Rute
+            $finalPrice = ($schedule->price * $days) + $biayaRute;
 
             // ====================================================================
 
