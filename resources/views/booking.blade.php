@@ -431,18 +431,39 @@
                                 </div>
                             </div>
                             <div class="grid gap-5 p-6 sm:p-7 md:grid-cols-2">
+                                
                                 {{-- DEPARTURE --}}
                                 <div>
-                                    <label for="custom_departure_time" class="block text-sm font-bold text-slate-700">Waktu Keberangkatan <span class="text-red-500">*</span></label>
+                                    <label for="custom_departure_time" class="block text-sm font-bold text-slate-700">
+                                        Waktu Keberangkatan <span class="text-red-500">*</span>
+                                    </label>
+                                    
                                     <input id="custom_departure_time" type="datetime-local" name="custom_departure_time" value="{{ old('custom_departure_time') }}" required class="mt-2 block h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-900 outline-none transition hover:border-slate-300 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10">
-                                    @error('custom_departure_time') <p class="mt-2 text-xs font-semibold text-red-500">{{ $message }}</p> @enderror
+                                    
+                                    {{-- KETERANGAN WAKTU MINIMAL --}}
+                                    <p class="mt-2 flex items-center gap-1.5 text-[11px] leading-5 text-amber-600">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-3.5 w-3.5 shrink-0">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        Minimal pemesanan dilakukan 3 jam sebelum keberangkatan.
+                                    </p>
+
+                                    {{-- TEMPAT ERROR JAVASCRIPT --}}
+                                    <p id="error_departure_time" class="mt-2 hidden text-xs font-semibold text-red-500"></p>
+
+                                    @error('custom_departure_time') 
+                                        <p class="mt-2 text-xs font-semibold text-red-500">{{ $message }}</p> 
+                                    @enderror
                                 </div>
+
                                 {{-- ARRIVAL --}}
                                 <div>
                                     <label for="custom_arrival_time" class="block text-sm font-bold text-slate-700">Waktu Selesai / Kembali <span class="text-red-500">*</span></label>
                                     <input id="custom_arrival_time" type="datetime-local" name="custom_arrival_time" value="{{ old('custom_arrival_time') }}" required class="mt-2 block h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-900 outline-none transition hover:border-slate-300 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10">
                                     @error('custom_arrival_time') <p class="mt-2 text-xs font-semibold text-red-500">{{ $message }}</p> @enderror
                                 </div>
+
                                 {{-- TIME INFO --}}
                                 <div class="md:col-span-2 flex items-start gap-3 rounded-2xl bg-slate-50 p-4">
                                     <div class="mt-0.5 text-sky-500">
@@ -453,6 +474,7 @@
                                     </div>
                                     <p class="text-xs leading-6 text-slate-500">Durasi sewa akan dihitung otomatis berdasarkan waktu keberangkatan dan waktu selesai perjalanan.</p>
                                 </div>
+
                             </div>
                         </section>
                     </div>
@@ -522,7 +544,7 @@
                                         Rp {{ number_format($schedule->price, 0, ',', '.') }}
                                     </p>
 
-                                    {{-- KETERANGAN BIAYA RUTE (DI KOTAK HITAM) --}}
+                                    {{-- KETERANGAN BIAYA RUTE --}}
                                     <div class="mt-4 flex items-start gap-3 rounded-xl bg-sky-500/10 px-4 py-3">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mt-0.5 h-4 w-4 shrink-0 text-sky-400">
                                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -691,7 +713,11 @@
             labelTotalPrice.text(formatRupiah(totalAkhir));
         }
 
-        /* CALCULATE DAYS */
+        /*
+        |--------------------------------------------------------------------------
+        | CALCULATE DAYS
+        |--------------------------------------------------------------------------
+        */
         function calculateDays() {
             const departureValue = departureInput.val();
             const arrivalValue = arrivalInput.val();
@@ -713,32 +739,126 @@
             updateTotalPrice();
         }
 
-        /* EVENTS */
+        /*
+        |--------------------------------------------------------------------------
+        | SET & VALIDATE MINIMAL DEPARTURE (+3 HOURS)
+        |--------------------------------------------------------------------------
+        */
+        
+        let minDateTimeObj = new Date();
+
+        function getMinDateTimeString() {
+            const now = new Date();
+            // Tambahkan 3 jam dari waktu sekarang
+            now.setHours(now.getHours() + 3);
+            
+            // Simpan object tanggal untuk validasi
+            minDateTimeObj = now;
+
+            // Format ke YYYY-MM-DDThh:mm
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        function initMinDepartureTime() {
+            const minDateTime = getMinDateTimeString();
+            departureInput.attr('min', minDateTime);
+            
+            // Jika belum ada nilai (saat awal), biarkan kosong
+            // Tapi jika ada nilai lama (old input), validasi ulang
+            if (departureInput.val()) {
+                validateDepartureTime();
+            }
+        }
+
+        function validateDepartureTime() {
+            const errorElement = $('#error_departure_time');
+            const selectedVal = departureInput.val();
+            
+            if (!selectedVal) {
+                errorElement.addClass('hidden');
+                return true;
+            }
+
+            const selectedDate = new Date(selectedVal);
+            
+            // Jika waktu yang dipilih LEBIH KECIL dari batas minimal (3 jam ke depan)
+            if (selectedDate < minDateTimeObj) {
+                // Munculkan pesan error
+                errorElement.text('Waktu tidak valid! Harus minimal 3 jam dari sekarang.').removeClass('hidden');
+                
+                // Ubah border menjadi merah sebagai peringatan
+                departureInput.removeClass('border-slate-200 focus:border-sky-500').addClass('border-red-500 focus:border-red-500 text-red-500');
+                
+                // Kembalikan input ke waktu minimal secara paksa
+                departureInput.val(getMinDateTimeString());
+                
+                // Sembunyikan error setelah 3 detik
+                setTimeout(() => {
+                    errorElement.addClass('hidden');
+                    departureInput.addClass('border-slate-200 focus:border-sky-500').removeClass('border-red-500 focus:border-red-500 text-red-500');
+                }, 3000);
+
+                return false;
+            }
+
+            // Jika aman, sembunyikan error
+            errorElement.addClass('hidden');
+            departureInput.addClass('border-slate-200 focus:border-sky-500').removeClass('border-red-500 focus:border-red-500 text-red-500');
+            return true;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | EVENTS (PERUBAEMBAHAN INPUT)
+        |--------------------------------------------------------------------------
+        */
         originSelect.on('change', function () {
             const selectedOrigin = $(this).val();
             hiddenOrigin.val(selectedOrigin || '');
             hiddenDestination.val('');
             populateDestinations(selectedOrigin);
-            updateTotalPrice(); // Panggil update harga saat asal diubah
+            updateTotalPrice(); 
         });
 
         destinationSelect.on('change', function () {
             hiddenDestination.val($(this).val() || '');
-            updateTotalPrice(); // Panggil update harga saat tujuan diubah
+            updateTotalPrice(); 
         });
 
         departureInput.on('change', function () {
-            const departureValue = $(this).val();
-            if (departureValue) arrivalInput.attr('min', departureValue);
-            calculateDays();
+            // Lakukan validasi 3 jam terlebih dahulu
+            const isValid = validateDepartureTime();
+            
+            if(isValid) {
+                const departureValue = $(this).val();
+
+                if (departureValue) {
+                    // Update batas minimal untuk waktu Selesai/Kedatangan
+                    arrivalInput.attr('min', departureValue);
+                }
+
+                calculateDays();
+            }
         });
 
         arrivalInput.on('change', calculateDays);
 
-        /* INITIAL CALL */
-        calculateDays();
+        /*
+        |--------------------------------------------------------------------------
+        | INITIAL CALLS (Dijalankan Saat Halaman Dimuat)
+        |--------------------------------------------------------------------------
+        */
+        initMinDepartureTime(); // Atur batasan waktu minimal
+        calculateDays();        // Hitung durasi dan harga awal
 
     });
 </script>
 </body>
 </html>
+

@@ -65,7 +65,7 @@ class BookingController extends Controller
                 'schedule_id' => 'required|exists:schedules,id',
                 'custom_origin' => 'required|string|max:255',
                 'custom_destination' => 'required|string|max:255',
-                'custom_departure_time' => 'required|date',
+                'custom_departure_time' => 'required|date|after:' . now()->addHours(3)->format('Y-m-d H:i'),
                 'custom_arrival_time' => 'required|date|after_or_equal:custom_departure_time',
                 'booker_name' => 'required|string|max:255',
                 'phone_number' => 'required|string|max:20',
