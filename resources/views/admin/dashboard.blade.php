@@ -596,6 +596,44 @@
             Catatan Servis
         </a>
 
+        {{-- MENU KONTAK BANTUAN ADMIN --}}
+        <a
+            href="{{ route('admin.contacts.edit') }}"
+            class="
+                mt-2
+                flex
+                items-center
+                gap-3
+                rounded-2xl
+                px-4
+                py-3.5
+                text-sm
+                font-semibold
+                text-slate-400
+                transition
+                hover:bg-white/5
+                hover:text-white
+                {{ request()->routeIs('admin.contacts.*') ? 'bg-sky-500 text-white !text-white' : '' }}
+            "
+        >
+            <div
+                class="
+                    flex
+                    h-9
+                    w-9
+                    items-center
+                    justify-center
+                    rounded-xl
+                    bg-white/5
+                "
+            >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.62 2.63a2 2 0 0 1-.45 2.11L8 9.73a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.63.62A2 2 0 0 1 22 16.92Z"/>
+                </svg>
+            </div>
+            Kontak Bantuan
+        </a>
+
 
 
         {{-- DIVIDER --}}
@@ -1524,6 +1562,7 @@
                             <span class="text-sky-400">
                                 {{ Auth::user()->name }}.
                             </span>
+                            
                         </h1>
 
 
