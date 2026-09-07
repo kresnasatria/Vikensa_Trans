@@ -193,7 +193,7 @@
 </section>
 
 {{-- ========================================================= --}}
-{{-- ARMADA (DISERAGAMKAN DENGAN DASHBOARD USER) --}}
+{{-- ARMADA --}}
 {{-- ========================================================= --}}
 <section id="armada" class="py-24 sm:py-28">
     <div class="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
@@ -367,7 +367,6 @@
 <section id="keunggulan" class="overflow-hidden bg-slate-950 py-24 text-white sm:py-28">
     <div class="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div class="grid gap-14 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
-            {{-- LEFT --}}
             <div>
                 <span class="inline-flex rounded-full bg-sky-400/10 px-4 py-2 text-xs font-black uppercase tracking-[.18em] text-sky-300">
                     Kenapa VikensaTrans?
@@ -386,27 +385,22 @@
                 @endauth
             </div>
 
-            {{-- RIGHT --}}
             <div class="grid gap-4 sm:grid-cols-2">
-                {{-- CARD 1 --}}
                 <div class="group rounded-3xl border border-white/10 bg-white/[.05] p-7 transition hover:-translate-y-1 hover:bg-white/[.09]">
                     <span class="text-sm font-black tracking-wider text-sky-400">01</span>
                     <h3 class="mt-8 text-xl font-black">Pilihan Armada</h3>
                     <p class="mt-3 text-sm leading-7 text-slate-400">Pilih kendaraan sesuai jumlah penumpang dan kebutuhan perjalanan.</p>
                 </div>
-                {{-- CARD 2 --}}
                 <div class="group rounded-3xl border border-white/10 bg-white/[.05] p-7 transition hover:-translate-y-1 hover:bg-white/[.09]">
                     <span class="text-sm font-black tracking-wider text-sky-400">02</span>
                     <h3 class="mt-8 text-xl font-black">Harga Transparan</h3>
                     <p class="mt-3 text-sm leading-7 text-slate-400">Informasi biaya perjalanan dapat dilihat sebelum melakukan pemesanan.</p>
                 </div>
-                {{-- CARD 3 --}}
                 <div class="group rounded-3xl border border-white/10 bg-white/[.05] p-7 transition hover:-translate-y-1 hover:bg-white/[.09]">
                     <span class="text-sm font-black tracking-wider text-sky-400">03</span>
                     <h3 class="mt-8 text-xl font-black">Booking Online</h3>
                     <p class="mt-3 text-sm leading-7 text-slate-400">Pemesanan dapat dilakukan langsung melalui website dengan proses yang sederhana.</p>
                 </div>
-                {{-- CARD 4 --}}
                 <div class="group rounded-3xl border border-white/10 bg-white/[.05] p-7 transition hover:-translate-y-1 hover:bg-white/[.09]">
                     <span class="text-sm font-black tracking-wider text-sky-400">04</span>
                     <h3 class="mt-8 text-xl font-black">Pembayaran Praktis</h3>
@@ -431,25 +425,21 @@
         <div class="relative mt-16">
             <div class="absolute left-[12%] right-[12%] top-9 hidden h-px bg-slate-200 lg:block"></div>
             <div class="relative grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-                {{-- STEP 1 --}}
                 <div class="relative text-center">
                     <div class="relative z-10 mx-auto flex h-[72px] w-[72px] items-center justify-center rounded-2xl bg-slate-950 text-lg font-black text-white shadow-xl">01</div>
                     <h3 class="mt-7 text-xl font-black">Masuk / Daftar</h3>
                     <p class="mx-auto mt-3 max-w-[250px] text-sm leading-7 text-slate-500">Buat akun atau masuk ke akun VikensaTrans.</p>
                 </div>
-                {{-- STEP 2 --}}
                 <div class="relative text-center">
                     <div class="relative z-10 mx-auto flex h-[72px] w-[72px] items-center justify-center rounded-2xl bg-slate-950 text-lg font-black text-white shadow-xl">02</div>
                     <h3 class="mt-7 text-xl font-black">Pilih Armada</h3>
                     <p class="mx-auto mt-3 max-w-[250px] text-sm leading-7 text-slate-500">Pilih kendaraan dan jadwal sesuai kebutuhan.</p>
                 </div>
-                {{-- STEP 3 --}}
                 <div class="relative text-center">
                     <div class="relative z-10 mx-auto flex h-[72px] w-[72px] items-center justify-center rounded-2xl bg-slate-950 text-lg font-black text-white shadow-xl">03</div>
                     <h3 class="mt-7 text-xl font-black">Isi Data</h3>
                     <p class="mx-auto mt-3 max-w-[250px] text-sm leading-7 text-slate-500">Lengkapi informasi pemesanan perjalananmu.</p>
                 </div>
-                {{-- STEP 4 --}}
                 <div class="relative text-center">
                     <div class="relative z-10 mx-auto flex h-[72px] w-[72px] items-center justify-center rounded-2xl bg-slate-950 text-lg font-black text-white shadow-xl">04</div>
                     <h3 class="mt-7 text-xl font-black">Bayar</h3>
@@ -474,7 +464,6 @@
         </div>
 
         <div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {{-- FAMILY TRIP --}}
             <div class="relative min-h-[340px] overflow-hidden rounded-[2rem] bg-sky-600 p-7 text-white">
                 <div class="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/10"></div>
                 <div class="relative flex h-full flex-col justify-between">
@@ -489,7 +478,6 @@
                 </div>
             </div>
 
-            {{-- COMPANY TRIP --}}
             <div class="relative min-h-[340px] overflow-hidden rounded-[2rem] bg-slate-900 p-7 text-white">
                 <div class="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/5"></div>
                 <div class="relative flex h-full flex-col justify-between">
@@ -504,7 +492,6 @@
                 </div>
             </div>
 
-            {{-- AIRPORT --}}
             <div class="relative min-h-[340px] overflow-hidden rounded-[2rem] bg-white p-7">
                 <div class="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-sky-100"></div>
                 <div class="relative flex h-full flex-col justify-between">
@@ -519,7 +506,6 @@
                 </div>
             </div>
 
-            {{-- GROUP TOUR --}}
             <div class="relative min-h-[340px] overflow-hidden rounded-[2rem] bg-indigo-600 p-7 text-white">
                 <div class="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/10"></div>
                 <div class="relative flex h-full flex-col justify-between">
@@ -548,7 +534,6 @@
         </div>
 
         <div class="mt-14 space-y-4">
-            {{-- FAQ 1 --}}
             <div x-data="{ open: false }" class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
                 <button @click="open = !open" class="flex w-full items-center justify-between gap-5 px-6 py-6 text-left sm:px-7">
                     <div class="flex items-center gap-4">
@@ -564,7 +549,6 @@
                 </div>
             </div>
 
-            {{-- FAQ 2 --}}
             <div x-data="{ open: false }" class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
                 <button @click="open = !open" class="flex w-full items-center justify-between gap-5 px-6 py-6 text-left sm:px-7">
                     <div class="flex items-center gap-4">
@@ -580,7 +564,6 @@
                 </div>
             </div>
 
-            {{-- FAQ 3 --}}
             <div x-data="{ open: false }" class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
                 <button @click="open = !open" class="flex w-full items-center justify-between gap-5 px-6 py-6 text-left sm:px-7">
                     <div class="flex items-center gap-4">
@@ -596,7 +579,6 @@
                 </div>
             </div>
 
-            {{-- FAQ 4 --}}
             <div x-data="{ open: false }" class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
                 <button @click="open = !open" class="flex w-full items-center justify-between gap-5 px-6 py-6 text-left sm:px-7">
                     <div class="flex items-center gap-4">
@@ -647,7 +629,7 @@
 {{-- ========================================================= --}}
 <footer class="bg-slate-950 text-white">
     <div class="mx-auto max-w-7xl px-5 py-16 sm:px-6 lg:px-8">
-        <div class="grid gap-12 lg:grid-cols-[1.4fr_.6fr_.6fr_.8fr]">
+        <div class="grid gap-10 lg:grid-cols-[1.2fr_.5fr_.5fr_.8fr_.8fr]">
             
             {{-- FOOTER BRAND --}}
             <div class="max-w-sm">
@@ -679,6 +661,44 @@
                         <a href="{{ route('register') }}" class="transition hover:text-sky-400">Daftar</a>
                     @endauth
                     <a href="#faq" class="transition hover:text-sky-400">FAQ</a>
+                </div>
+            </div>
+
+            {{-- KONTAK BANTUAN (DINAMIS DARI ADMIN) --}}
+            <div>
+                <h4 class="font-black">Kontak Bantuan</h4>
+                <div class="mt-5 flex flex-col gap-2.5 text-sm text-slate-400">
+                    @if(!empty($adminContact?->phone))
+                        <p class="flex items-center gap-1.5">
+                            <span class="text-sky-400 font-semibold">WA:</span> 
+                            <a href="https://wa.me/{{ $adminContact->phone }}" target="_blank" class="hover:text-white transition">{{ $adminContact->phone }}</a>
+                        </p>
+                    @endif
+
+                    @if(!empty($adminContact?->email))
+                        <p class="flex items-center gap-1.5">
+                            <span class="text-sky-400 font-semibold">Email:</span> 
+                            <a href="mailto:{{ $adminContact->email }}" class="hover:text-white transition truncate">{{ $adminContact->email }}</a>
+                        </p>
+                    @endif
+
+                    @if(!empty($adminContact?->instagram))
+                        <p class="flex items-center gap-1.5">
+                            <span class="text-sky-400 font-semibold">IG:</span> 
+                            <span>{{ $adminContact->instagram }}</span>
+                        </p>
+                    @endif
+
+                    @if(!empty($adminContact?->facebook))
+                        <p class="flex items-center gap-1.5">
+                            <span class="text-sky-400 font-semibold">FB:</span> 
+                            <span>{{ $adminContact->facebook }}</span>
+                        </p>
+                    @endif
+
+                    @if(empty($adminContact?->phone) && empty($adminContact?->email) && empty($adminContact?->instagram))
+                        <span class="italic text-slate-500 text-xs">Belum diatur admin.</span>
+                    @endif
                 </div>
             </div>
 

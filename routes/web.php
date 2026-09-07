@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\TripRouteController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ServiceLogController; 
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Admin\ContactController;
 
 
 // --- AREA USER & UMUM ---
@@ -23,7 +24,11 @@ Route::get('/payment-success/{id}', [BookingController::class, 'paymentSuccess']
 Route::get('/', function () {
     // Ambil semua data jadwal beserta relasi armadanya
     $schedules = \App\Models\Schedule::with('shuttle')->get();
-    return view('welcome', compact('schedules'));
+    
+    // Ambil data kontak admin untuk footer
+    $adminContact = \App\Models\AdminContact::first();
+
+    return view('welcome', compact('schedules', 'adminContact'));
 });
 
 Route::get('/dashboard', function () {
@@ -60,16 +65,16 @@ Route::middleware(['auth', \App\Http\Middleware\IsAdmin::class])->prefix('admin'
     Route::get('/rute', [TripRouteController::class, 'index'])->name('route.index');
     Route::post('/rute/simpan', [TripRouteController::class, 'store'])->name('route.store');
     
-    // --- KODE BARU: Rute untuk memunculkan halaman Edit ---
+    // Rute untuk memunculkan halaman Edit Rute
     Route::get('/rute/edit/{id}', [TripRouteController::class, 'edit'])->name('route.edit');
     
     Route::put('/rute/update/{id}', [TripRouteController::class, 'update'])->name('route.update');
     Route::delete('/rute/hapus/{id}', [TripRouteController::class, 'destroy'])->name('route.destroy');
 
-    // Rute untuk notifikasi pesanan baru (AJAX) - Bersih tanpa duplikasi
+    // Rute untuk notifikasi pesanan baru (AJAX)
     Route::get('/cek-pesanan-baru', [AdminController::class, 'checkNewOrders'])->name('checkOrders');
 
-    // Rute Halaman Manajemen Order (Nama otomatis jadi admin.orders.index)
+    // Rute Halaman Manajemen Order
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::put('/orders/status/{id}', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
@@ -81,8 +86,13 @@ Route::middleware(['auth', \App\Http\Middleware\IsAdmin::class])->prefix('admin'
 
     // --- Rute untuk menghapus foto armada 
     Route::delete('/photos/{id}', [AdminController::class, 'destroyPhoto'])->name('photos.destroy');
+
+    // --- Rute Pengaturan Kontak Bantuan Admin ---
+    Route::get('/contacts', [ContactController::class, 'edit'])->name('contacts.edit');
+    Route::put('/contacts', [ContactController::class, 'update'])->name('contacts.update');
+    
 });
 
-    // --- Rute untuk Google OAuth ---
-        Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
-        Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+// --- Rute untuk Google OAuth ---
+Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);

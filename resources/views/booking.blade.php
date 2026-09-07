@@ -391,8 +391,8 @@
                                         <option value="">Pilih kota jemput</option>
                                     </select>
                                     <p class="mt-2 text-xs text-slate-400">Ketik untuk mencari kota.</p>
-                                    @error('custom_origin') <p class="mt-2 text-xs font-semibold text-red-500">{{ $message }}</p> @enderror
                                 </div>
+
                                 {{-- DESTINATION --}}
                                 <div>
                                     <label for="destination_city" class="block text-sm font-bold text-slate-700">Kota Tujuan <span class="text-red-500">*</span></label>
@@ -400,8 +400,8 @@
                                         <option value="">Pilih kota tujuan</option>
                                     </select>
                                     <p class="mt-2 text-xs text-slate-400">Pilihan muncul setelah kota jemput dipilih.</p>
-                                    @error('custom_destination') <p class="mt-2 text-xs font-semibold text-red-500">{{ $message }}</p> @enderror
                                 </div>
+
                                 {{-- ROUTE VISUAL --}}
                                 <div class="md:col-span-2 rounded-2xl border border-sky-100 bg-sky-50 p-5">
                                     <div class="flex items-start gap-4">
@@ -418,9 +418,43 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                {{-- KETERANGAN JIKA RUTE TIDAK ADA (DINAMIS DARI ADMIN) --}}
+                                <div class="md:col-span-2 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
+                                    <p class="font-bold">⚠️ Jika rute tujuan yang Anda cari tidak tersedia, silakan hubungi admin melalui:</p>
+                                    <div class="mt-2 flex flex-wrap items-center gap-4 font-semibold">
+                                        @if(!empty($adminContact?->phone))
+                                            <a href="https://wa.me/{{ $adminContact->phone }}" target="_blank" class="inline-flex items-center gap-1 text-emerald-700 hover:underline">
+                                                💬 WhatsApp: {{ $adminContact->phone }}
+                                            </a>
+                                        @endif
+
+                                        @if(!empty($adminContact?->email))
+                                            <a href="mailto:{{ $adminContact->email }}" class="inline-flex items-center gap-1 text-sky-700 hover:underline">
+                                                ✉️ Email: {{ $adminContact->email }}
+                                            </a>
+                                        @endif
+
+                                        @if(!empty($adminContact?->instagram))
+                                            <span class="inline-flex items-center gap-1 text-pink-700">
+                                                📷 IG: {{ $adminContact->instagram }}
+                                            </span>
+                                        @endif
+
+                                        @if(!empty($adminContact?->facebook))
+                                            <span class="inline-flex items-center gap-1 text-blue-700">
+                                                👥 FB: {{ $adminContact->facebook }}
+                                            </span>
+                                        @endif
+
+                                        @if(empty($adminContact?->phone) && empty($adminContact?->email))
+                                            <span class="text-gray-500 italic">Kontak admin belum diatur oleh pengelola.</span>
+                                        @endif
+                                    </div>
+                                </div>
+
                             </div>
                         </section>
-
                         {{-- STEP 3 --}}
                         <section class="booking-card overflow-hidden rounded-[2rem] border border-slate-200 bg-white">
                             <div class="flex items-center gap-4 border-b border-slate-100 px-6 py-5 sm:px-7">

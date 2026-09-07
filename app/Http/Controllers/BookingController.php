@@ -8,6 +8,7 @@ use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
 use Midtrans\Config;
 use Midtrans\Snap;
+use App\Models\AdminContact;
 
 
 class BookingController extends Controller
@@ -49,15 +50,17 @@ class BookingController extends Controller
             return redirect()->route('dashboard')->with('error', 'Maaf, armada ini baru saja dipesan oleh orang lain.');
         }
 
-        // AMBIL DATA RUTE DARI DATABASE UNTUK DROPDOWN
+        // AMBIL DATA RUTE
         $routes = \App\Models\TripRoute::orderBy('origin', 'asc')->get();
 
-        return view('booking', compact('schedule', 'routes'));
+        // AMBIL DATA KONTAK ADMIN
+        $adminContact = \App\Models\AdminContact::first();
+
+        return view('booking', compact('schedule', 'routes', 'adminContact'));
     }
 
 
     // Fungsi untuk memproses data dari form pemesanan
-   // Fungsi untuk memproses data dari form pemesanan
     public function store(Request $request)
         {
             // 1. Validasi Input
@@ -66,10 +69,14 @@ class BookingController extends Controller
                 'custom_origin' => 'required|string|max:255',
                 'custom_destination' => 'required|string|max:255',
                 'custom_departure_time' => 'required|date|after:' . now()->addHours(3)->format('Y-m-d H:i'),
-                'custom_arrival_time' => 'required|date|after_or_equal:custom_departure_time',
+                'custom_arrival_time' => 'required|date|after:custom_departure_time',
                 'booker_name' => 'required|string|max:255',
                 'phone_number' => 'required|string|max:20',
                 'pickup_address' => 'required|string',
+            ], [
+                // Pesan Error Kustom (Bahasa Indonesia)
+                'custom_departure_time.after' => 'Waktu keberangkatan harus minimal 3 jam dari waktu pemesanan saat ini.',
+                'custom_arrival_time.after'   => 'Waktu selesai atau kembali tidak boleh mendahului waktu keberangkatan.',
             ]);
 
             $schedule = \App\Models\Schedule::findOrFail($request->schedule_id);
