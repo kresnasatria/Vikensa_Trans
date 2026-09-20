@@ -399,6 +399,7 @@
                                                     <select name="payment_status" class="h-9 rounded-lg border border-slate-200 bg-white px-3 pr-8 text-xs font-bold text-slate-600 focus:border-sky-500 focus:ring-sky-500">
                                                         <option value="pending" {{ $order->payment_status === 'pending' ? 'selected' : '' }}>Pending</option>
                                                         <option value="paid" {{ $order->payment_status === 'paid' ? 'selected' : '' }}>Lunas</option>
+                                                        <option value="cancelled" {{ $order->payment_status === 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
                                                     </select>
                                                     <button type="submit" class="h-9 rounded-lg bg-slate-950 px-3 text-xs font-bold text-white transition hover:bg-sky-600">Simpan</button>
                                                 </form>
